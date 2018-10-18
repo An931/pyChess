@@ -4,6 +4,7 @@ import sys
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty, 
 		QParallelAnimationGroup, QSequentialAnimationGroup)
+from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout, 
 	QVBoxLayout, QLabel, QPushButton, QWidget)
 
