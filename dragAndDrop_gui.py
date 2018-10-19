@@ -45,27 +45,16 @@ class QtCell(QFrame):
 
 
 	def set_piece(self, piece_name, piece_color):
-		# if self.piece:
-		# 	self.piece.hide()
-		# if not piece_name:
-		# 	self.piece = None
+		if self.id == 'c1':
+			a=3
 		self.del_piece()
 		self.piece = QtPiece(piece_name, piece_color, self)
-		# self.piece.show()
+		# self.piece.show() # вызывается при создании фигуры
 
 	def del_piece(self):
 		if self.piece:
 			self.piece.hide()
 		self.piece = None
-
-	def put_new_piece00(self, piece_name, piece_color):
-		# if self.piece:
-		# 	self.piece.hide()
-		if not piece_name:
-			self.piece = None
-		else:
-			self.piece = QtPiece(piece_name, piece_color, self)
-			# self.piece.show()  # вызывается при создании фигуры
 
 
 	def setColor(self):
@@ -88,7 +77,7 @@ class QtCell(QFrame):
 
 
 	def dropEvent(self, event):
-		# проверка на все спец методы (вроде 2 шт + становление ферзем)
+		# проверка на все спец методы (вроде 2 шт: custeling and en passant)
 		from_pos = event.source().id
 		to_pos = self.id
 
@@ -121,7 +110,6 @@ class QtCell(QFrame):
 		# else:
 		#     pass
 
-		# self.board.make_computer_move()
 
 
 	def mousePressEvent(self, event):
@@ -130,6 +118,7 @@ class QtCell(QFrame):
 		if self.parent().moved_piece:
 			self.parent().moved_piece.hide()
 			to_cell = self.parent().moved_piece.to_cell
+			# self.parent().maybe_promote_pawn(to_cell.id)
 			# print('!!!!!!!!', self.parent().moved_piece.name, self.parent().moved_piece.color)
 			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
@@ -197,16 +186,22 @@ class QtBoard(QWidget):
 		# self.anim = None
 
 
+	def print_all_cells(self):
+		for row in self.layout().children():
+			for cell in [row.itemAt(i).widget() for i in range(8)]:
+				piece = cell.piece.name if cell.piece else ""
+				print(cell.id, piece) 
+
+
 	def put_pieces(self):
 		# ставит фигуры в соответствие со своей логической доской
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
-				if cell.piece:
-					cell.piece.hide()
-					cell.piece = None
 				logic_piece = self.game.board[cell.id]
 				if logic_piece:
 					cell.set_piece(type(logic_piece).__name__, logic_piece.color)
+				else:
+					cell.del_piece()
 
 
 	def maybe_promote_pawn(self, to_pos):
@@ -220,6 +215,7 @@ class QtBoard(QWidget):
 
 
 	def make_human_move(self, from_pos, to_pos):
+
 		# self.game.print_board()
 		# ЗДЕСЬ ПРОВЕРКА НА СПЕЦ МЕТОДЫ
 
@@ -249,10 +245,11 @@ class QtBoard(QWidget):
 
 		from_cell.del_piece()
 		# to_cell set в mouse_press потому что иначе она выполнится до анимации
+		self.maybe_promote_pawn(to_cell.id)
+
 
 
 	def animate_move(self, from_pos, to_pos):
-		# ОСТАВИТЬ ТОЛЬКО АНИМАЦИЮ, ПРОДУМАТЬ КАК ЕЕ СКРЫВАТЬ, УБРАТЬ(?) ИЗ АТРИБУТА В ПРОСТО ПЕРЕМЕННУЮ
 
 		# нужно: переместить label, убрать атр piece с клетки from, добавить на клетку to
 		from_pos_coords = self.get_coords(from_pos)
@@ -317,6 +314,7 @@ class QtBoard(QWidget):
 		print('boooard')
 		self.game.print_board()
 		# self.game.print_comp_board()
+		self.print_all_cells()
 
 	def load_session(self):
 		self.game.load_session()
