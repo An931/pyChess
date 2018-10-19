@@ -118,19 +118,19 @@ class Game:
 			return True
 		piece = self.board[from_pos]
 		if piece == '':
-			print('piece=" "')
+			# print('piece=" "')
 			# print(self.board)
 			return False
 		if self.board[to_pos] != '' and piece.color == self.board[to_pos].color:
-			print('atack self piece')
+			# print('atack self piece')
 			return False
 
 		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
 		if not can:
-			print('not can move')
+			# print('not can move')
 			return False
 			
-		print('maybe barriers on pathway')
+		# print('maybe barriers on pathway')
 		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 	def is_enpassant(self, from_pos, to_pos):
@@ -216,8 +216,10 @@ class Game:
 
 
 	def is_barrier_on_pathway(self, from_pos, to_pos):
-		cells = get_pathway_cells(from_pos, to_pos)
+		cells = self.get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
+		print('PATHCELLS', cells)
+		print('from_pos', from_pos, 'BARRIERS', barriers)
 		return len(barriers) > 0
 
 
@@ -251,82 +253,8 @@ class Game:
 				else:
 					s+=' '
 			print(s)
-def get_pathway_cells(from_pos, to_pos): 
-	""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
-			Если траектория - прямая или диагональ, то возвращает список клеток между from и to
-			Иначе пустой список (в случае хода коня или некорректного хода) """
 
-	def get_row(from_pos, to_pos):
-		num = from_pos[1]
-		min_let = ord(min(from_pos[0], to_pos[0]))
-		max_let = ord(max(from_pos[0], to_pos[0]))
-		return [chr(x)+num for x in range(min_let+1, max_let)]
-
-	def get_column(from_pos, to_pos):
-		letter = from_pos[0]
-		min_num = int(min(from_pos[1], to_pos[1]))
-		max_num = int(max(from_pos[1], to_pos[1]))
-		return [letter+str(x) for x in range(min_num+1, max_num)]
-
-	def get_diagonal(from_pos, to_pos):
-		delta = abs(int(from_pos[1]) - int(to_pos[1]))
-		min_num = int(min(from_pos[1], to_pos[1]))
-		min_let = ord(min(from_pos[0], to_pos[0]))
-		cells = []
-		for i in range(1, delta):
-			l = min_let + i
-			n = min_num + i
-			cells.append(chr(l)+str(n))
-		return cells
-
-	dx = ord(from_pos[0]) - ord(to_pos[0])
-	dy = int(from_pos[1]) - int(to_pos[1])
-	if abs(dx) == abs(dy):
-		return get_diagonal(from_pos, to_pos)
-	if dx == 0 and dy != 0:
-		return get_column(from_pos, to_pos) 
-	if dx != 0 and dy == 0:
-		return get_row(from_pos, to_pos)
-	return []
-
-
-
-class GameOverError(BaseException):
-	pass
-
-
-class MoveError(BaseException):
-	pass
-
-
-from collections import defaultdict
-
-
-class Board_analyze_0:
-
-	def evaluate_can_move(self, from_pos, to_pos):
-		if self.is_barrier_on_pathway(from_pos, to_pos):
-			return False 
-		piece = self.board[from_pos]
-		if isinstance(piece, Empty) or piece.color != player.color:
-			return False
-		goal = self.board[to_pos]
-		if isinstance(goal, Empty):
-			success = piece.can_move(from_pos, to_pos)
-		elif piece.color == goal.color:
-			return False
-		else:
-			success = piece.can_capture(from_pos, to_pos)
-		if not success:
-			return False
-		return True
-
-	def is_barrier_on_pathway(self, from_pos, to_pos):
-		cells = Board.get_pathway_cells(from_pos, to_pos)
-		barriers = [self.board[c] for c in cells if not isinstance(self.board[c], Empty)]
-		return len(barriers) > 0
-
-	def get_pathway_cells(from_pos, to_pos): 
+	def get_pathway_cells(self, from_pos, to_pos):
 		""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
 				Если траектория - прямая или диагональ, то возвращает список клеток между from и to
 				Иначе пустой список (в случае хода коня или некорректного хода) """
@@ -345,13 +273,21 @@ class Board_analyze_0:
 
 		def get_diagonal(from_pos, to_pos):
 			delta = abs(int(from_pos[1]) - int(to_pos[1]))
-			min_num = int(min(from_pos[1], to_pos[1]))
 			min_let = ord(min(from_pos[0], to_pos[0]))
 			cells = []
-			for i in range(1, delta):
-				l = min_let + i
-				n = min_num + i
-				cells.append(chr(l)+str(n))
+			if (ord(from_pos[0]) - ord(to_pos[0])) * (int(from_pos[1]) - int(to_pos[1])) > 0:
+				#   то есть одного знака -- диагональ лев.низ-прав.верх
+				min_num = int(min(from_pos[1], to_pos[1]))
+				for i in range(1, delta):
+					l = min_let + i
+					n = min_num + i
+					cells.append(chr(l)+str(n))
+			else:
+				max_num = int(max(from_pos[1], to_pos[1]))
+				for i in range(1, delta):
+					l = min_let + i
+					n = max_num - i
+					cells.append(chr(l) + str(n))
 			return cells
 
 		dx = ord(from_pos[0]) - ord(to_pos[0])
@@ -359,8 +295,20 @@ class Board_analyze_0:
 		if abs(dx) == abs(dy):
 			return get_diagonal(from_pos, to_pos)
 		if dx == 0 and dy != 0:
-			return get_column(from_pos, to_pos) 
+			return get_column(from_pos, to_pos)
 		if dx != 0 and dy == 0:
 			return get_row(from_pos, to_pos)
 		return []
+
+
+
+class GameOverError(BaseException):
+	pass
+
+class MoveError(BaseException):
+	pass
+
+
+from collections import defaultdict
+
 

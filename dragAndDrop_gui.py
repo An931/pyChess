@@ -1,12 +1,15 @@
 import sys
 # from datetime import datetime
+#
 
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
-		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty, 
+		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout, 
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout,
 	QVBoxLayout, QLabel, QPushButton, QWidget)
+
+
 
 from game import *
 from players import *
@@ -41,14 +44,28 @@ class QtCell(QFrame):
 		self.setAcceptDrops(True)
 
 
-	def put_new_piece(self, piece_name, piece_color):
+	def set_piece(self, piece_name, piece_color):
+		# if self.piece:
+		# 	self.piece.hide()
+		# if not piece_name:
+		# 	self.piece = None
+		self.del_piece()
+		self.piece = QtPiece(piece_name, piece_color, self)
+		# self.piece.show()
+
+	def del_piece(self):
 		if self.piece:
 			self.piece.hide()
+		self.piece = None
+
+	def put_new_piece00(self, piece_name, piece_color):
+		# if self.piece:
+		# 	self.piece.hide()
 		if not piece_name:
 			self.piece = None
 		else:
 			self.piece = QtPiece(piece_name, piece_color, self)
-			# self.piece.show()
+			# self.piece.show()  # вызывается при создании фигуры
 
 
 	def setColor(self):
@@ -61,10 +78,6 @@ class QtCell(QFrame):
 			self.color = 'white'
 
 	def dragEnterEvent(self, event):
-		# print('drag')
-		# return
-		# event.accept()
-
 		if event.source() == self:
 			event.accept()
 		else:
@@ -73,82 +86,15 @@ class QtCell(QFrame):
 			# либо для каждой кл заново, либо сразу сост спсок возм-ых и искать кл в этом списке
 			event.acceptProposedAction()
 
-	def dropEvent_REALMETHOD_0(self, event):
-		# if self.icon:
-		#     self.icon.hide()
-		try:
-			self.game.make_move(event.source().id, self.id)
-			self.piece.hide()
-			newPiece = QtPiece(event.source().piece.name, event.source().piece.color, self)
-			newPiece.show()
-			self.piece = newPiece
-
-			# перемещение иконки
-			event.setDropAction(Qt.MoveAction)
-			event.accept()
-			if event.source() == self:
-				pass
-			else:
-				pass
-				# return
-				# coords = event.source().coords
-				# analyse if move correct
-		except:
-			print('wrong move')
-			return
-
-		self.parent().make_computer_move()
-
-
-	def dropEvent_0(self, event):
-		# проверка на все спец методы (вроде 2 шт + становление ферзем)
-		from_pos = event.source().id
-		to_pos = self.id
-
-		# ВЫНЕСТИ ЭТО В QTBOARD
-		if self.game.is_correct_custeling(from_pos, to_pos):
-			rook_place = 'f1' if to_pos == 'h1' else 'd1'
-			king_place = 'g1' if to_pos == 'h1' else 'c1'
-
-			self.board.animate_move(from_pos, king_place)
-			self.board.animate_move(to_pos, rook_place)
-			self.board.animate_move('a1', 'a2')
-
-			# ???????????????????????????
-			animationGroup = QParallelAnimationGroup()
-			animationGroup.addAnimation(self.board.animate_move(from_pos, king_place))
-			animationGroup.addAnimation(self.board.animate_move(to_pos, rook_place))
-			animationGroup.start()
-			return
-
-
-		self.game.make_move(from_pos, to_pos)
-		# print('DROP', type(self.piece), self.id)
-		if self.piece:
-			self.piece.hide()
-		newPiece = QtPiece(event.source().piece.name, event.source().piece.color, self)
-		# newPiece.show()
-		self.piece = newPiece
-
-		# перемещение иконки
-		event.setDropAction(Qt.MoveAction)
-		event.accept()
-
-		# if event.source() == self:
-		#     pass
-		# else:
-		#     pass
-
-		self.board.make_computer_move()
 
 	def dropEvent(self, event):
 		# проверка на все спец методы (вроде 2 шт + становление ферзем)
 		from_pos = event.source().id
 		to_pos = self.id
 
-		if self.game.is_correct_custeling()
+		# if self.game.is_correct_custeling()
 
-		self.board.make_move(from_pos, to_pos, True)
+		self.board.make_human_move(from_pos, to_pos)
 
 		# ВЫНЕСТИ ЭТО В QTBOARD
 		# if self.game.is_correct_custeling(from_pos, to_pos):
@@ -209,8 +155,6 @@ class QtCell(QFrame):
 		drag.setHotSpot(event.pos() - child.pos())
 
 		# затемняет лейбл
-		# доделать чтобы фигура пропадала
-		# как вариант: заполнять цветом таким же как клетка 
 		tempPixmap = QPixmap(pixmap)
 		painter = QPainter()
 		painter.begin(tempPixmap)
@@ -252,99 +196,20 @@ class QtBoard(QWidget):
 		self.moved_piece = None
 		# self.anim = None
 
-	def put_pieces_0DoesntDependOnGameBoard(self, saved_session=None):
-		if saved_session:
-			print('not implemet')
-			raise Exception()
-
-		for row in self.layout().children():
-			# print(row)
-			# print(row.children()) # why [] ?
-			for cell in [row.itemAt(i).widget() for i in range(8)]:
-				# print(cell.id)
-				if cell.id[1] in '1278':
-					cell.put_new_piece(*self.get_init_piece(cell))
-				# cell.add_new_icon(self.get_init_piece(cell))
 
 	def put_pieces(self):
+		# ставит фигуры в соответствие со своей логической доской
 		for row in self.layout().children():
-			# print(row)
-			# print(row.children()) # why [] ?
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
-				# print(cell.id)
-				# print(self.game.board[cell.id])
 				if cell.piece:
 					cell.piece.hide()
+					cell.piece = None
 				logic_piece = self.game.board[cell.id]
 				if logic_piece:
-				  cell.put_new_piece(type(logic_piece).__name__, logic_piece.color)
-				# if cell.id[1] in '1278':
-				#     cell.put_new_piece(*self.get_init_piece(cell))
-				# cell.add_new_icon(self.get_init_piece(cell))
-
-	def get_init_piece_000(self, cell):
-		# if cell_id.id[1] not in '1278':
-		#     return None
-		if cell.id[1] == '2':
-			return 'Pawn', 'white'
-		if cell.id[1] == '7':
-			return 'Pawn', 'black'
-		if cell.id[1] == '1':
-			if cell.id[0] == 'a' or cell.id[0] == 'h':
-				return 'Rook', 'white'
-			if cell.id[0] == 'b' or cell.id[0] == 'g':
-				return 'Knight', 'white'
-			if cell.id[0] == 'c' or cell.id[0] == 'f':
-				return 'Bishop', 'white'
-			if cell.id[0] == 'd':
-				return 'Queen', 'white'
-			if cell.id[0] == 'e':
-				return 'King', 'white'
-		if cell.id[1] == '8':
-			if cell.id[0] == 'a' or cell.id[0] == 'h':
-				return 'Rook', 'black'
-			if cell.id[0] == 'b' or cell.id[0] == 'g':
-				return 'Knight', 'black'
-			if cell.id[0] == 'c' or cell.id[0] == 'f':
-				return 'Bishop', 'black'
-			if cell.id[0] == 'd':
-				return 'Queen', 'black'
-			if cell.id[0] == 'e':
-				return 'King', 'black'
-		print('get_init_piece', 'hui')
-		return 'a', 'n'
+					cell.set_piece(type(logic_piece).__name__, logic_piece.color)
 
 
-	def get_init_piece_0(self, cell):
-		if cell.id[1] == '2':
-			return 'w_Pawn'
-		if cell.id[1] == '7':
-			return 'b_Pawn'
-		if cell.id[1] == '1':
-			if cell.id[0] == 'a' or cell.id[0] == 'h':
-				return 'w_Rook'
-			if cell.id[0] == 'b' or cell.id[0] == 'g':
-				return 'w_Knight'
-			if cell.id[0] == 'c' or cell.id[0] == 'f':
-				return 'w_Bishop'
-			if cell.id[0] == 'd':
-				return 'w_Queen'
-			if cell.id[0] == 'e':
-				return 'w_King'
-		if cell.id[1] == '8':
-			if cell.id[0] == 'a' or cell.id[0] == 'h':
-				return 'b_Rook'
-			if cell.id[0] == 'b' or cell.id[0] == 'g':
-				return 'b_Knight'
-			if cell.id[0] == 'c' or cell.id[0] == 'f':
-				return 'b_Bishop'
-			if cell.id[0] == 'd':
-				return 'b_Queen'
-			if cell.id[0] == 'e':
-				return 'b_King'
-
-
-	def promote_pawn(self, to_pos):
+	def maybe_promote_pawn(self, to_pos):
 		if to_pos[1] != '1' and to_pos[1] != '8':
 			return
 		logic_piece = self.game.board[to_pos]
@@ -354,7 +219,7 @@ class QtBoard(QWidget):
 			qt_cell.put_new_piece('Queen', logic_piece.color)
 
 
-	def make_move(self, from_pos, to_pos, was_hum=False):
+	def make_human_move(self, from_pos, to_pos):
 		# self.game.print_board()
 		# ЗДЕСЬ ПРОВЕРКА НА СПЕЦ МЕТОДЫ
 
@@ -363,29 +228,26 @@ class QtBoard(QWidget):
 		from_cell = self.get_cell(from_pos)
 		to_cell = self.get_cell(to_pos)
 
-		to_cell.put_new_piece(from_cell.piece.name, from_cell.piece.color)
-		from_cell.put_new_piece(None, None)
+		to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
+		from_cell.del_piece()
 
-		self.promote_pawn(to_pos)
-		# костыль
-		if was_hum:
-			self.make_computer_move()
+		self.maybe_promote_pawn(to_pos)
+
+		# if not over:
+		self.make_computer_move()		# костыль
+
 
 	def make_computer_move(self):
 		from_pos, to_pos = self.game.comp.get_move()
+		self.game.make_move(from_pos, to_pos)
 		self.animate_move(from_pos, to_pos)
 		# animation
 
 		# end animation
-
-
-		self.game.make_move(from_pos, to_pos)
-
 		from_cell = self.get_cell(from_pos)
 		to_cell = self.get_cell(to_pos)
 
-		# to_cell.put_new_piece(from_cell.piece.name, from_cell.piece.color)
-		from_cell.put_new_piece(None, None)
+		from_cell.del_piece()
 
 
 	def animate_move(self, from_pos, to_pos):
@@ -411,7 +273,7 @@ class QtBoard(QWidget):
 
 		self.anim = QPropertyAnimation(self.moved_piece, b'pos')
 		self.anim.setDuration(1000) # speed
-		
+
 		self.anim.setStartValue(from_pos_coords)
 		self.anim.setEndValue(to_pos_coords)
 		# self.anim.setEndValue(QPointF(*to_pos_coords))
@@ -436,8 +298,6 @@ class QtBoard(QWidget):
 					return cell
 
 
-
-
 	def get_coords(self, cell_id):
 		# возвращает координаты центра конкретной клетки относительно доски в пикселях
 		return self.get_cell(cell_id).pos()
@@ -452,12 +312,9 @@ class QtBoard(QWidget):
 		self.put_pieces()
 
 	def save_session(self):
-		self.game.save_session('ses.txt'
+		self.game.save_session('ses.txt')
 
 
-class QtGame_0:
-	def __init__(self):
-		pass
 
 
 

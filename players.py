@@ -2,7 +2,8 @@
 import random 
 
 
-# игроки. у человека только его цвет
+# цвет игрока всегда белый
+
 # у компьютера вся логика его хода
 
 # изменить: убрать дублирование доски (сделать в место этого полем игру)
@@ -19,46 +20,44 @@ class Computer():
 		self.game = game
 		self.color = 'black'
 
-		# self.move_num = 1
 
 	def get_move(self):
-		# move = self.get_sorted_movements()[0]
+		move = self.get_sorted_movements()[0]
+		if not self.game.is_correct_move(*move):
+			print('!!!\n\nSOMETHING WRONG IN COMP LOGIC\n\n')
 
-		# if isinstance(self.board.board[move[1]], Empty):
-		# 	return self.get_random_movement()
+		if not self.board[move[1]]:
+			# чтобы ходы в начале игры не были одинаковыми 
+			return self.get_random_movement()
+
+		return move
+
+
 
 		# print(move.from_pos, move.to_pos)
-		
-		# if self.move_num == 1:
-		# 	self.move_num = 2
-		# 	return 'a7', 'a6'
 
-		# elif self.move_num == 2:
-		# 	self.move_num = 3
-		# 	return 'a6', 'a5'
-
-		return self.get_random_movement()
+		# return self.get_random_movement()
 
 	def get_random_movement(self):
 		moves = self.get_all_movements()
 		r1 = random.randint(0, len(moves)-1)
 		from_pos = list(moves.keys())[r1]
 		r2 = random.randint(0, len(moves[from_pos])-1)
-		# return (from_pos, moves[from_pos][r2])
 		res = (from_pos, moves[from_pos][r2])
 		return res
 
 	def get_sorted_movements(self):
 		""" возвращает список ходов (tuple), упорядоченных по выгоде"""
-		# не работает т.к. доска уже просто словарь
-		# ДОДЕЛАТЬ
-		candidats_to_move = self.get_all_movements()
+		candidats_to_move = self.get_all_movements() # словарь ходов {from : all where}
 		moves = []
-		for c in candidats_to_move:
-			for m in candidats_to_move[c]:
-				moves.append(Move(c, m, self.board))
+		for from_pos in candidats_to_move:
+			for to_pos in candidats_to_move[from_pos]:
+				moves.append(Move(from_pos, to_pos, self.board))
+		# -----коротко, но не сработает, т.к. отсутствие фигуры - пустая строка:
+		# moves.sort(key=lambda x: self.board[x[1]].weight, reverse=True) 
+		# решение - moves - список объектов Move
 		moves.sort(key=lambda x: x.benefit, reverse=True)
-		return [m.move for m in moves]
+		return [(m.from_pos, m.to_pos) for m in moves]
 
 	def get_all_movements(self):
 		""" возвращает словарь ходов {from : all where} """
@@ -70,14 +69,14 @@ class Computer():
 					candidats_to_move[cell] = movements
 		return candidats_to_move
 
-	def get_movments_of_piece(self, id): 
+	def get_movments_of_piece(self, cell_id): 
 		"""возвращает все возможные ходы данной фигуры"""
 		# if not self.board[id] or self.board[id].color != self.color:
 		# 	return 
-		piece = self.board[id]
+		piece = self.board[cell_id]
 		empty, enemy = self.get_empty_or_enemy_cells()
 		all_to_pos = empty + enemy
-		moves = [to_pos for to_pos in all_to_pos if self.game.is_correct_move(id, to_pos)]
+		moves = [to_pos for to_pos in all_to_pos if self.game.is_correct_move(cell_id, to_pos)]
 		return moves
 
 	def get_empty_or_enemy_cells(self):
@@ -92,7 +91,7 @@ class Computer():
 				enemy.append(c)
 		return (empty, enemy)
 
-	def is_correct_move(self, from_pos, to_pos):
+	def is_correct_move000(self, from_pos, to_pos):
 		piece = self.board[from_pos]
 		if piece == '':
 			return False
@@ -105,12 +104,12 @@ class Computer():
 		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 
-	def is_barrier_on_pathway(self, from_pos, to_pos):
+	def is_barrier_on_pathway000(self, from_pos, to_pos):
 		cells = get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
 		return len(barriers) > 0
 
-def get_pathway_cells(from_pos, to_pos): 
+def get_pathway_cells000(from_pos, to_pos): 
 	""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
 			Если траектория - прямая или диагональ, то возвращает список клеток между from и to
 			Иначе пустой список (в случае хода коня или некорректного хода) """
@@ -153,12 +152,11 @@ class Move():
 		self.from_pos = from_pos
 		self.to_pos = to_pos
 		self.board = board
-		self.simple_evaluate()
-		self.move = (from_pos, to_pos)
-
-	def simple_evaluate(self):
-		self.benefit = self.board.board[self.to_pos].weight
+		self.evaluate()
+		# self.move = (from_pos, to_pos)
 
 	def evaluate(self):
-		pass
+		piece = self.board[self.to_pos]
+		self.benefit = 0 if not piece else piece.weight
+
 
