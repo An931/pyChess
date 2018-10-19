@@ -125,12 +125,12 @@ class QtCell(QFrame):
 
 
 	def mousePressEvent(self, event):
-		# костыль - фигуры пропадают когда возникает след.нажатие
+		# костыль - фигуры moved_piece пропадают когда возникает след.нажатие
 		# сделать это после анимации (хз как)
 		if self.parent().moved_piece:
 			self.parent().moved_piece.hide()
 			to_cell = self.parent().moved_piece.to_cell
-			print('!!!!!!!!', self.parent().moved_piece.name, self.parent().moved_piece.color)
+			# print('!!!!!!!!', self.parent().moved_piece.name, self.parent().moved_piece.color)
 			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
 
@@ -216,7 +216,7 @@ class QtBoard(QWidget):
 		if isinstance(logic_piece, Pawn):
 			self.game.board[to_pos] = Queen(logic_piece.color)
 			qt_cell = self.get_cell(to_pos)
-			qt_cell.put_new_piece('Queen', logic_piece.color)
+			qt_cell.set_piece('Queen', logic_piece.color)
 
 
 	def make_human_move(self, from_pos, to_pos):
@@ -248,6 +248,7 @@ class QtBoard(QWidget):
 		to_cell = self.get_cell(to_pos)
 
 		from_cell.del_piece()
+		# to_cell set в mouse_press потому что иначе она выполнится до анимации
 
 
 	def animate_move(self, from_pos, to_pos):
@@ -259,8 +260,18 @@ class QtBoard(QWidget):
 		# self.path.lineTo(*to_pos_coords)
 
 		from_cell = self.get_cell(from_pos)
+
+		# так фигуры пропадают до анимации
+		# зато, сука, не появляются потом ни с того ни с сего
+		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		to_cell = self.get_cell(to_pos)
+		if to_cell.piece:
+			to_cell.piece.hide()
+
 		# print(from_pos)
 		# from_cell.piece.hide()
+		# необходимо чтобы скрывать его в mouse_press
+		# иначе при наведении нельзя поставить фигуру на нее
 		self.moved_piece = QtPiece(from_cell.piece.name, from_cell.piece.color, self)
 		# from_cell.piece = None
 		self.moved_piece.to_cell = self.get_cell(to_pos)
@@ -381,4 +392,3 @@ if __name__ == '__main__':
 
 # ---
 # qtgame - main app, иниц-ся доска, опции игры, история (гуи элементы) и сама логика игры
-

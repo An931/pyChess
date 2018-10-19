@@ -22,6 +22,9 @@ class Computer():
 
 
 	def get_move(self):
+		# print(move.from_pos, move.to_pos)
+		# return self.get_random_movement()
+
 		move = self.get_sorted_movements()[0]
 		if not self.game.is_correct_move(*move):
 			print('!!!\n\nSOMETHING WRONG IN COMP LOGIC\n\n')
@@ -29,14 +32,13 @@ class Computer():
 		if not self.board[move[1]]:
 			# чтобы ходы в начале игры не были одинаковыми 
 			return self.get_random_movement()
-
 		return move
 
 
 
-		# print(move.from_pos, move.to_pos)
 
-		# return self.get_random_movement()
+
+
 
 	def get_random_movement(self):
 		moves = self.get_all_movements()
