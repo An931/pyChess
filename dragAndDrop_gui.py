@@ -113,13 +113,12 @@ class QtCell(QFrame):
 	def mousePressEvent(self, event):
 		# костыль - фигуры moved_piece пропадают когда возникает след.нажатие
 		# сделать это после анимации (хз как)
-		if self.parent().moved_piece: 
+		if self.parent().moved_piece: # анимация пропадает, фигура копируется из анимации
 			self.parent().moved_piece.hide()
-			to_cell = self.parent().moved_piece.to_cell
-			# self.parent().maybe_promote_pawn(to_cell.id)
-			# print('!!!!!!!!', self.parent().moved_piece.name, self.parent().moved_piece.color)
-			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
+			# to_cell = self.parent().moved_piece.to_cell
+			# to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
+		self.parent().put_pieces()
 
 		child = self.childAt(event.pos())
 		if not child:
@@ -330,7 +329,7 @@ class QtBoard(QWidget):
 		print('boooard')
 		self.game.print_board()
 		# self.game.print_comp_board()
-		self.print_all_cells()
+		# self.print_all_cells()
 
 	def load_session(self):
 		self.game.load_session()
