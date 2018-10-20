@@ -205,7 +205,7 @@ class QtBoard(QWidget):
 					cell.del_piece()
 
 
-	def need_to_promote_pawn(self, to_pos):
+	def need_to_promote_pawn00(self, to_pos):
 		if to_pos[1] != '1' and to_pos[1] != '8':
 			return False
 		logic_piece = self.game.board[to_pos]
@@ -214,7 +214,7 @@ class QtBoard(QWidget):
 		return False
 
 
-	def promote_pawn(self, to_pos):
+	def promote_pawn00(self, to_pos):
 		if not self.need_to_promote_pawn(to_pos):
 			raise MoveError()
 			# return
@@ -223,7 +223,7 @@ class QtBoard(QWidget):
 		qt_cell = self.get_cell(to_pos)
 		qt_cell.set_piece('Queen', logic_pawn.color)
 
-	def promote_comp_pawn(self, to_pos):
+	def promote_comp_pawn00(self, to_pos):
 		# invalid promotion
 		# чтобы внешне ферзя не появлялось, но логически фигура ходила как ферзь
 		if not self.need_to_promote_pawn(to_pos):
@@ -246,8 +246,8 @@ class QtBoard(QWidget):
 		to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 		from_cell.del_piece()
 
-		if self.need_to_promote_pawn(to_pos):
-			self.promote_pawn(to_pos)
+		# if self.need_to_promote_pawn(to_pos):
+		# 	self.promote_pawn(to_pos)
 
 		# if not over:
 		self.make_computer_move()		# костыль
@@ -267,8 +267,8 @@ class QtBoard(QWidget):
 		# to_cell set в mouse_press потому что иначе она выполнится до анимации
 		# self.promote_pawn(to_cell.id)
 
-		if self.need_to_promote_pawn(to_pos):
-			self.promote_comp_pawn(to_pos)
+		# if self.need_to_promote_pawn(to_pos):
+		# 	self.promote_comp_pawn(to_pos)
 
 
 

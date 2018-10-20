@@ -89,7 +89,17 @@ class Game:
 		# print('end make move', self.board['a6'])
 		# print(self.board)
 		# self.save_session('ses.txt')
+		if self.need_to_promote_pawn(to_pos):
+			self.board[to_pos] = Queen(self.board[to_pos].color)
 
+
+	def need_to_promote_pawn(self, to_pos):
+		if to_pos[1] != '1' and to_pos[1] != '8':
+			return False
+		piece = self.board[to_pos]
+		if isinstance(piece, Pawn):
+			return True
+		return False
 
 	def save_session(self, filename):
 		if self.over:
