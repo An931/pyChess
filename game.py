@@ -24,6 +24,10 @@ class Game:
 		self.over = False
 		self.winner = None
 
+		# self.last_moved = { 'white':None, 'black':None } # for check en passant
+		self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
+
+
 	def create_board(self):
 		def get_strong_piece(x, color):
 			if x == 'a' or x == 'h':
@@ -81,6 +85,13 @@ class Game:
 			self.print_board()
 			raise MoveError
 
+		if self.is_enpassant(from_pos, to_pos):
+			self.board[to_pos[0]+from_pos[1]] = ''
+
+		# if self.is_custeling(from_pos, to_pos):
+			
+
+
 		if isinstance(self.board[to_pos], King):
 			self.over = True
 			self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
@@ -91,6 +102,9 @@ class Game:
 		# self.save_session('ses.txt')
 		if self.need_to_promote_pawn(to_pos):
 			self.board[to_pos] = Queen(self.board[to_pos].color)
+		# if self.board[to_pos]: #was en_passant
+
+		self.last_moved[self.board[to_pos].color] = to_pos
 
 
 	def need_to_promote_pawn(self, to_pos):
@@ -124,7 +138,9 @@ class Game:
 
 
 	def is_correct_move(self, from_pos, to_pos):
-		if self.is_correct_custeling(from_pos, to_pos):
+		if self.is_custeling(from_pos, to_pos):
+			return True
+		if self.is_enpassant(from_pos, to_pos):
 			return True
 		piece = self.board[from_pos]
 		if piece == '':
@@ -155,9 +171,9 @@ class Game:
 		enemy_pawn_place = to_pos[0] + from_pos[1]
 		if not isinstance(self.board[enemy_pawn_place], Pawn) or self.board[enemy_pawn_place].color == piece.color:
 			return False
+		if self.last_moved[self.board[enemy_pawn_place].color] != enemy_pawn_place:
+			return False
 		return True
-
-
 
 
 	def make_en_passant_0(self, from_pos, to_pos):
@@ -184,13 +200,14 @@ class Game:
 
 
 
-	def is_special_method(self, from_pos, to_pos):
+	def is_special_method000(self, from_pos, to_pos):
 		def is_custeling_0():
 			return isinstance(self.board[from_pos], King) and \
 						 isinstance(self.board[to_pos], Rook) and \
 						( from_pos == 'e1' and (to_pos == 'a1' or to_pos == 'h1')  or \
 						 from_pos == 'e8' and (to_pos == 'a8' or to_pos == 'h8')) and \
 						not self.is_barrier_on_pathway(from_pos, to_pos)
+
 
 	def make_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
@@ -213,7 +230,7 @@ class Game:
 		self.board[from_pos] = ''
 		self.board[to_pos] = ''
 
-	def is_correct_custeling(self, from_pos, to_pos):
+	def is_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
 			return False
 		if not isinstance(self.board[from_pos], King) or \

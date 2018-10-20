@@ -107,7 +107,7 @@ class Pawn(Piece):
 		return dx == 1 and dy == 1
 
 
-class Empty:
+class Empty000:
 	def __init__(self):
 		self.type = 'Empty'
 		self.color = 'no'

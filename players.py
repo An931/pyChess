@@ -1,7 +1,7 @@
 # from board import *
 import random 
 
-
+from pieces import *
 # цвет игрока всегда белый
 
 # у компьютера вся логика его хода
@@ -23,21 +23,16 @@ class Computer():
 
 	def get_move(self):
 		# print(move.from_pos, move.to_pos)
-		return self.get_random_movement()
+		# return self.get_random_movement()
 
 		move = self.get_sorted_movements()[0]
 		if not self.game.is_correct_move(*move):
 			print('!!!\n\nSOMETHING WRONG IN COMP LOGIC\n\n')
 
-		if not self.board[move[1]]:
+		if not self.board[move[1]] and not self.game.is_enpassant(*move):
 			# чтобы ходы в начале игры не были одинаковыми 
 			return self.get_random_movement()
 		return move
-
-
-
-
-
 
 
 	def get_random_movement(self):
@@ -160,5 +155,12 @@ class Move():
 	def evaluate(self):
 		piece = self.board[self.to_pos]
 		self.benefit = 0 if not piece else piece.weight
+
+		# 		маленький костыль для en passant
+		# if self.from_pos[1] == '4' and self.to_pos[1] == '3'
+		acting_piece = self.board[self.from_pos]
+		a=acting_piece.can_capture(self.from_pos, self.to_pos)
+		if isinstance(acting_piece, Pawn) and acting_piece.can_capture(self.from_pos, self.to_pos) and self.benefit == 0:
+			self.benefit = 1
 
 

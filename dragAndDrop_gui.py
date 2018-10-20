@@ -1,4 +1,5 @@
 import sys
+import time
 # from datetime import datetime
 #
 
@@ -115,10 +116,10 @@ class QtCell(QFrame):
 		# сделать это после анимации (хз как)
 		if self.parent().moved_piece: # анимация пропадает, фигура копируется из анимации
 			self.parent().moved_piece.hide()
-			# to_cell = self.parent().moved_piece.to_cell
-			# to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
+			to_cell = self.parent().moved_piece.to_cell # вернуть эти две строчки, если надумаешь убрать update (put_pieces)
+			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
-		self.parent().put_pieces()
+		self.parent().put_pieces() # update board depend on logic 
 
 		child = self.childAt(event.pos())
 		if not child:
@@ -205,16 +206,17 @@ class QtBoard(QWidget):
 					cell.del_piece()
 
 
-	def need_to_promote_pawn00(self, to_pos):
+	def need_to_promote_pawn00_работает(self, to_pos):
 		if to_pos[1] != '1' and to_pos[1] != '8':
 			return False
 		logic_piece = self.game.board[to_pos]
-		if isinstance(logic_piece, Pawn):
+		# if isinstance(logic_piece, Pawn): # так было когда logic promotion вызывался только через gui, сейчас он работает сам
+		if isinstance(logic_piece, Queen):
 			return True
 		return False
 
 
-	def promote_pawn00(self, to_pos):
+	def promote_pawn00_работает(self, to_pos):
 		if not self.need_to_promote_pawn(to_pos):
 			raise MoveError()
 			# return
@@ -246,11 +248,12 @@ class QtBoard(QWidget):
 		to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 		from_cell.del_piece()
 
+		# a = self.need_to_promote_pawn(to_pos)
 		# if self.need_to_promote_pawn(to_pos):
 		# 	self.promote_pawn(to_pos)
 
 		# if not over:
-		self.make_computer_move()		# костыль
+		self.make_computer_move()
 
 
 	def make_computer_move(self):
@@ -281,7 +284,7 @@ class QtBoard(QWidget):
 
 		from_cell = self.get_cell(from_pos)
 
-		# так фигуры пропадают до анимации
+		# так захватываемые фигуры пропадают до анимации
 		# зато, сука, не появляются потом ни с того ни с сего
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		to_cell = self.get_cell(to_pos)
@@ -310,6 +313,7 @@ class QtBoard(QWidget):
 		self.anim.start()
 		# self.anim.stop()
 		# return self.anim
+		# self.put_pieces()
 
 
 
