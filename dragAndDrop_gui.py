@@ -75,7 +75,6 @@ class QtCell(QFrame):
 			# либо для каждой кл заново, либо сразу сост спсок возм-ых и искать кл в этом списке
 			event.acceptProposedAction()
 
-
 	def dropEvent(self, event):
 		# проверка на все спец методы (вроде 2 шт: custeling and en passant)
 		from_pos = event.source().id
@@ -109,8 +108,6 @@ class QtCell(QFrame):
 		#     pass
 		# else:
 		#     pass
-
-
 
 	def mousePressEvent(self, event):
 		# костыль - фигуры moved_piece пропадают когда возникает след.нажатие
@@ -270,7 +267,6 @@ class QtBoard(QWidget):
 		# необходимо чтобы скрывать его в mouse_press
 		# иначе при наведении нельзя поставить фигуру на нее
 		self.moved_piece = QtPiece(from_cell.piece.name, from_cell.piece.color, self)
-		# from_cell.piece = None
 		self.moved_piece.to_cell = self.get_cell(to_pos)
 
 		# self.get_cell(to_pos).piece = moved_piece
