@@ -122,7 +122,7 @@ class QtCell(QFrame):
 			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
 		# вот этот иф убрать в update!!!!!!
-		self.parent().update() # update board depend on logic 
+		# self.parent().update() # update board depend on logic 
 		# self.parent().put_pieces()
 
 		child = self.childAt(event.pos())
@@ -305,9 +305,10 @@ class QtBoard(QWidget):
 		# так захватываемые фигуры пропадают до анимации
 		# зато, сука, не появляются потом ни с того ни с сего
 		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		to_cell = self.get_cell(to_pos)
-		if to_cell.piece:
-			to_cell.piece.hide()
+		# проблема решилась - можно убрать это
+		# to_cell = self.get_cell(to_pos)
+		# if to_cell.piece:
+		# 	to_cell.piece.hide()
 
 		# print(from_pos)
 		# from_cell.piece.hide()
