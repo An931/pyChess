@@ -328,6 +328,8 @@ class QtBoard(QWidget):
 		self.anim.setStartValue(from_pos_coords)
 		self.anim.setEndValue(to_pos_coords)
 
+		self.anim.finished.connect(self.update)
+
 		self.anim.start()
 		# self.anim.stop()
 		# return self.anim
