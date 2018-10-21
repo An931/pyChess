@@ -111,6 +111,8 @@ class QtCell(QFrame):
 		# else:
 		#     pass
 
+		# self.parent().put_pieces()
+
 	def mousePressEvent(self, event):
 		# костыль - фигуры moved_piece пропадают когда возникает след.нажатие
 		# сделать это после анимации (хз как)
@@ -180,8 +182,12 @@ class QtBoard(QWidget):
 		# self.show()
 
 		self.moved_piece = None
+		self.moved_king = None
+		self.moved_rook = None
 		self.put_pieces()
 		# self.anim = None
+		# для custeling:
+
 
 
 	def print_all_cells(self):
@@ -196,6 +202,13 @@ class QtBoard(QWidget):
 		if self.moved_piece:
 			self.moved_piece.hide()
 			self.moved_piece = None
+		if self.moved_king:
+			self.moved_king.hide()
+			self.moved_king = None
+		if self.moved_rook:
+			self.moved_rook.hide()
+			self.moved_rook = None
+
 
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
@@ -214,7 +227,6 @@ class QtBoard(QWidget):
 		if isinstance(logic_piece, Queen):
 			return True
 		return False
-
 
 	def promote_pawn00_работает(self, to_pos):
 		if not self.need_to_promote_pawn(to_pos):
@@ -236,17 +248,20 @@ class QtBoard(QWidget):
 
 
 	def make_human_move(self, from_pos, to_pos):
-
-		# self.game.print_board()
-		# ЗДЕСЬ ПРОВЕРКА НА СПЕЦ МЕТОДЫ
-
 		self.game.make_move(from_pos, to_pos)
 
 		from_cell = self.get_cell(from_pos)
 		to_cell = self.get_cell(to_pos)
 
-		to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
-		from_cell.del_piece()
+		# a=self.is_custeling(from_pos, to_pos)
+		if self.is_custeling(from_pos, to_pos):
+			self.animate_custeling(from_pos, to_pos)
+			from_cell.del_piece()
+			to_cell.del_piece()
+
+		else:
+			to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
+			from_cell.del_piece()
 
 		# a = self.need_to_promote_pawn(to_pos)
 		# if self.need_to_promote_pawn(to_pos):
@@ -315,8 +330,51 @@ class QtBoard(QWidget):
 		# return self.anim
 		# self.put_pieces()
 
+	def is_custeling(self, from_pos, to_pos):
+		# проверяет только позиции
+		# баг
+		return from_pos == 'e1' and to_pos in ['a1', 'h1']
+
+	def animate_custeling(self, from_pos, to_pos):
+		if not self.is_custeling(from_pos, to_pos):
+			raise Exception()
+		# 1 так как рокировка пока только у человека
+		rook_future_place = 'f1' if to_pos == 'h1' else 'd1'
+		king_future_place = 'g1' if to_pos == 'h1' else 'c1'
+
+		# ???????????????????????????
+		# animationGroup = QParallelAnimationGroup()
+		# animationGroup.addAnimation(self.board.animate_move(from_pos, king_place))
+		# animationGroup.addAnimation(self.board.animate_move(to_pos, rook_place))
+		# animationGroup.start()
+		# ------------------------------------------------------------
+		# from_pos_coords = self.get_coords(from_pos)
+		# to_pos_coords = self.get_coords(to_pos)
+		# # self.path.lineTo(*to_pos_coords)
+
+		# from_cell = self.get_cell(from_pos)
 
 
+		# print(from_pos)
+		# from_cell.piece.hide()
+		# необходимо чтобы скрывать его в mouse_press
+		# иначе при наведении нельзя поставить фигуру на нее
+		self.moved_king = QtPiece('King', 'white', self)
+		self.moved_king.to_cell = self.get_cell(king_future_place)
+		self.moved_rook = QtPiece('Rook', 'white', self)
+		self.moved_rook.to_cell = self.get_cell(rook_future_place)
+
+		self.king_anim = QPropertyAnimation(self.moved_king, b'pos')
+		self.king_anim.setDuration(1000) # speed
+		self.king_anim.setStartValue(self.get_coords('e1'))
+		self.king_anim.setEndValue(self.get_coords(king_future_place))
+		self.king_anim.start()
+
+		self.rook_anim = QPropertyAnimation(self.moved_rook, b'pos')
+		self.rook_anim.setDuration(1000) # speed
+		self.rook_anim.setStartValue(self.get_coords(to_pos))
+		self.rook_anim.setEndValue(self.get_coords(rook_future_place))
+		self.rook_anim.start()
 
 	def get_cell(self, id):
 		for row in self.layout().children():
@@ -332,6 +390,7 @@ class QtBoard(QWidget):
 	def mousePressEvent(self, event):
 		print('boooard')
 		self.game.print_board()
+		self.put_pieces()
 		# self.game.print_comp_board()
 		# self.print_all_cells()
 

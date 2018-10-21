@@ -88,8 +88,18 @@ class Game:
 		if self.is_enpassant(from_pos, to_pos):
 			self.board[to_pos[0]+from_pos[1]] = ''
 
-		# if self.is_custeling(from_pos, to_pos):
-			
+		if self.is_custeling(from_pos, to_pos):
+			# делается путем наведения короля (from_pos='e1') на ладью (to_pos='a1' or ='h1')
+			row = from_pos[1]
+			if row != '1' and row != '8':
+				raise Exception()
+			king_future_place = 'g'+row if to_pos[0]=='h' else 'c'+row
+			rook_future_place = 'f'+row if to_pos[0]=='h' else 'd'+row
+			color = 'white' if from_pos[1] == '1' else 'black'
+			self.board[king_future_place] = King(color)
+			self.board[rook_future_place] = Rook(color)
+			self.board[to_pos] = ''
+			self.board[from_pos] = ''
 
 
 		if isinstance(self.board[to_pos], King):
@@ -104,7 +114,9 @@ class Game:
 			self.board[to_pos] = Queen(self.board[to_pos].color)
 		# if self.board[to_pos]: #was en_passant
 
-		self.last_moved[self.board[to_pos].color] = to_pos
+		# хз что, но почему то self.board[to_pos] = '' при рокировке
+		if self.board[to_pos]:
+			self.last_moved[self.board[to_pos].color] = to_pos
 
 
 	def need_to_promote_pawn(self, to_pos):
