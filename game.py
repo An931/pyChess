@@ -100,6 +100,7 @@ class Game:
 			self.board[rook_future_place] = Rook(color)
 			self.board[to_pos] = ''
 			self.board[from_pos] = ''
+			return
 
 
 		if isinstance(self.board[to_pos], King):

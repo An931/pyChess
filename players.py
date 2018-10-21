@@ -23,7 +23,7 @@ class Computer():
 
 	def get_move(self):
 		# print(move.from_pos, move.to_pos)
-		return self.get_random_movement()
+		# return self.get_random_movement()
 
 		move = self.get_sorted_movements()[0]
 		if not self.game.is_correct_move(*move):

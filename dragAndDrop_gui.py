@@ -8,7 +8,7 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout,
-	QVBoxLayout, QLabel, QPushButton, QWidget)
+	QVBoxLayout, QLabel, QMessageBox, QPushButton, QWidget)
 
 
 
@@ -121,7 +121,9 @@ class QtCell(QFrame):
 			to_cell = self.parent().moved_piece.to_cell # вернуть эти две строчки, если надумаешь убрать update (put_pieces)
 			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
 			self.parent().moved_piece = None
-		self.parent().put_pieces() # update board depend on logic 
+		# вот этот иф убрать в update!!!!!!
+		self.parent().update() # update board depend on logic 
+		# self.parent().put_pieces()
 
 		child = self.childAt(event.pos())
 		if not child:
@@ -268,6 +270,7 @@ class QtBoard(QWidget):
 		# 	self.promote_pawn(to_pos)
 
 		# if not over:
+		self.update()
 		self.make_computer_move()
 
 
@@ -387,10 +390,24 @@ class QtBoard(QWidget):
 		# возвращает координаты центра конкретной клетки относительно доски в пикселях
 		return self.get_cell(cell_id).pos()
 
+	def update(self):
+		if self.game.over:
+			self.message_if_over()
+			return
+		self.put_pieces()
+		# засунуть сюда сокрытие анимируемых фигур
+		# и заменить put pieces на этот метод
+
+	def message_if_over(self):
+		buttonReply = QMessageBox.information(self, '', 'Game over. Winner is '+self.game.winner, QMessageBox.Ok)
+		if buttonReply == QMessageBox.Ok:
+			self.parent().close()
+
+
 	def mousePressEvent(self, event):
 		print('boooard')
 		self.game.print_board()
-		self.put_pieces()
+		self.update()
 		# self.game.print_comp_board()
 		# self.print_all_cells()
 
