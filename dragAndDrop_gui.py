@@ -46,15 +46,12 @@ class QtCell(QFrame):
 
 
 	def set_piece(self, piece_name, piece_color):
-		# if self.id == 'c1':
-		# 	a=3
 		self.del_piece()
 		self.piece = QtPiece(piece_name, piece_color, self)
 		# self.piece.show() # вызывается при создании фигуры
 
 	def del_piece(self):
 		if self.piece:
-			self.piece.hide()
 			self.piece.hide()
 		self.piece = None
 
@@ -68,6 +65,7 @@ class QtCell(QFrame):
 			self.setStyleSheet('background-color:white;')
 			self.color = 'white'
 
+
 	def dragEnterEvent(self, event):
 		if event.source() == self:
 			event.accept()
@@ -78,29 +76,9 @@ class QtCell(QFrame):
 			event.acceptProposedAction()
 
 	def dropEvent(self, event):
-		# проверка на все спец методы (вроде 2 шт: custeling and en passant)
 		from_pos = event.source().id
 		to_pos = self.id
-
-		# if self.game.is_correct_custeling()
-
 		self.board.make_human_move(from_pos, to_pos)
-
-		# ВЫНЕСТИ ЭТО В QTBOARD
-		# if self.game.is_correct_custeling(from_pos, to_pos):
-		#     rook_place = 'f1' if to_pos == 'h1' else 'd1'
-		#     king_place = 'g1' if to_pos == 'h1' else 'c1'
-
-		#     self.board.animate_move(from_pos, king_place)
-		#     self.board.animate_move(to_pos, rook_place)
-		#     self.board.animate_move('a1', 'a2')
-
-		#     # ???????????????????????????
-		#     animationGroup = QParallelAnimationGroup()
-		#     animationGroup.addAnimation(self.board.animate_move(from_pos, king_place))
-		#     animationGroup.addAnimation(self.board.animate_move(to_pos, rook_place))
-		#     animationGroup.start()
-		#     return
 
 		# перемещение иконки
 		event.setDropAction(Qt.MoveAction)
@@ -108,23 +86,14 @@ class QtCell(QFrame):
 
 		# if event.source() == self:
 		#     pass
-		# else:
-		#     pass
 
-		# self.parent().put_pieces()
 
 	def mousePressEvent(self, event):
-		# костыль - фигуры moved_piece пропадают когда возникает след.нажатие
-		# сделать это после анимации (хз как)
-		if self.parent().moved_piece: # анимация пропадает, фигура копируется из анимации
-			self.parent().moved_piece.hide()
-			to_cell = self.parent().moved_piece.to_cell # вернуть эти две строчки, если надумаешь убрать update (put_pieces)
-			to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
-			self.parent().moved_piece = None
-		# вот этот иф убрать в update!!!!!!
-		# self.parent().update() # update board depend on logic 
-		# self.parent().put_pieces()
-
+		# if self.parent().moved_piece: # анимация пропадает, фигура копируется из анимации
+		# 	self.parent().moved_piece.hide()
+		# 	to_cell = self.parent().moved_piece.to_cell # вернуть эти две строчки, если надумаешь убрать update (put_pieces)
+		# 	to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
+		# 	self.parent().moved_piece = None
 		child = self.childAt(event.pos())
 		if not child:
 			return
@@ -150,7 +119,6 @@ class QtCell(QFrame):
 		painter = QPainter()
 		painter.begin(tempPixmap)
 		painter.fillRect(pixmap.rect(), QColor(127, 127, 127, 127))
-		# painter.fillRect(pixmap.rect(), QColor())
 		painter.end()
 
 		child.setPixmap(tempPixmap)
@@ -159,7 +127,6 @@ class QtCell(QFrame):
 			# если перемещение в доступное место
 			child.close()
 		else:
-			# child.show()
 			child.setPixmap(pixmap)
 
 
@@ -181,18 +148,15 @@ class QtBoard(QWidget):
 
 		self.setWindowTitle('board')
 		# self.setGeometry(200, 200, 500, 500)
-		# self.show()
 
 		self.moved_piece = None
+		# для custeling:
 		self.moved_king = None
 		self.moved_rook = None
 		self.put_pieces()
-		# self.anim = None
-		# для custeling:
 
 
-
-	def print_all_cells(self):
+	def print_all_cells00(self):
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
 				piece = cell.piece.name if cell.piece else ""
@@ -201,17 +165,6 @@ class QtBoard(QWidget):
 
 	def put_pieces(self):
 		# ставит фигуры в соответствие со своей логической доской
-		if self.moved_piece:
-			self.moved_piece.hide()
-			self.moved_piece = None
-		if self.moved_king:
-			self.moved_king.hide()
-			self.moved_king = None
-		if self.moved_rook:
-			self.moved_rook.hide()
-			self.moved_rook = None
-
-
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
 				logic_piece = self.game.board[cell.id]
@@ -255,7 +208,6 @@ class QtBoard(QWidget):
 		from_cell = self.get_cell(from_pos)
 		to_cell = self.get_cell(to_pos)
 
-		# a=self.is_custeling(from_pos, to_pos)
 		if self.is_custeling(from_pos, to_pos):
 			self.animate_custeling(from_pos, to_pos)
 			from_cell.del_piece()
@@ -264,13 +216,9 @@ class QtBoard(QWidget):
 		else:
 			to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 			from_cell.del_piece()
+			self.update()
 
-		# a = self.need_to_promote_pawn(to_pos)
-		# if self.need_to_promote_pawn(to_pos):
-		# 	self.promote_pawn(to_pos)
-
-		# if not over:
-		self.update()
+		# self.update()
 		self.make_computer_move()
 
 
@@ -278,63 +226,34 @@ class QtBoard(QWidget):
 		from_pos, to_pos = self.game.comp.get_move()
 		self.game.make_move(from_pos, to_pos)
 		self.animate_move(from_pos, to_pos)
-		# animation
 
-		# end animation
 		from_cell = self.get_cell(from_pos)
 		to_cell = self.get_cell(to_pos)
 
 		from_cell.del_piece()
-		# to_cell set в mouse_press потому что иначе она выполнится до анимации
-		# self.promote_pawn(to_cell.id)
 
-		# if self.need_to_promote_pawn(to_pos):
-		# 	self.promote_comp_pawn(to_pos)
 
 
 
 	def animate_move(self, from_pos, to_pos):
-
-		# нужно: переместить label, убрать атр piece с клетки from, добавить на клетку to
 		from_pos_coords = self.get_coords(from_pos)
 		to_pos_coords = self.get_coords(to_pos)
-		# self.path.lineTo(*to_pos_coords)
 
 		from_cell = self.get_cell(from_pos)
 
-		# так захватываемые фигуры пропадают до анимации
-		# зато, сука, не появляются потом ни с того ни с сего
-		# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		# проблема решилась - можно убрать это
-		# to_cell = self.get_cell(to_pos)
-		# if to_cell.piece:
-		# 	to_cell.piece.hide()
-
-		# print(from_pos)
-		# from_cell.piece.hide()
 		# необходимо чтобы скрывать его в mouse_press
 		# иначе при наведении нельзя поставить фигуру на нее
 		self.moved_piece = QtPiece(from_cell.piece.name, from_cell.piece.color, self)
 		self.moved_piece.to_cell = self.get_cell(to_pos)
-
-		# self.get_cell(to_pos).piece = moved_piece
-		# self.get_cell(to_pos).piece = QtPiece(piece.name, piece.color, self.get_cell(to_pos))
-
-		# if self.anim:
-		#     self.anim.stop()
 
 		self.anim = QPropertyAnimation(self.moved_piece, b'pos')
 		self.anim.setDuration(1000) # speed
 
 		self.anim.setStartValue(from_pos_coords)
 		self.anim.setEndValue(to_pos_coords)
-
+		self.anim.start()
 		self.anim.finished.connect(self.update)
 
-		self.anim.start()
-		# self.anim.stop()
-		# return self.anim
-		# self.put_pieces()
 
 	def is_custeling(self, from_pos, to_pos):
 		# проверяет только позиции
@@ -344,25 +263,10 @@ class QtBoard(QWidget):
 	def animate_custeling(self, from_pos, to_pos):
 		if not self.is_custeling(from_pos, to_pos):
 			raise Exception()
-		# 1 так как рокировка пока только у человека
+		# _1 так как рокировка пока только у человека
 		rook_future_place = 'f1' if to_pos == 'h1' else 'd1'
 		king_future_place = 'g1' if to_pos == 'h1' else 'c1'
 
-		# ???????????????????????????
-		# animationGroup = QParallelAnimationGroup()
-		# animationGroup.addAnimation(self.board.animate_move(from_pos, king_place))
-		# animationGroup.addAnimation(self.board.animate_move(to_pos, rook_place))
-		# animationGroup.start()
-		# ------------------------------------------------------------
-		# from_pos_coords = self.get_coords(from_pos)
-		# to_pos_coords = self.get_coords(to_pos)
-		# # self.path.lineTo(*to_pos_coords)
-
-		# from_cell = self.get_cell(from_pos)
-
-
-		# print(from_pos)
-		# from_cell.piece.hide()
 		# необходимо чтобы скрывать его в mouse_press
 		# иначе при наведении нельзя поставить фигуру на нее
 		self.moved_king = QtPiece('King', 'white', self)
@@ -382,6 +286,7 @@ class QtBoard(QWidget):
 		self.rook_anim.setEndValue(self.get_coords(rook_future_place))
 		self.rook_anim.start()
 
+
 	def get_cell(self, id):
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
@@ -395,14 +300,25 @@ class QtBoard(QWidget):
 
 	def update(self):
 		if self.game.over:
-			self.message_if_over()
+			self.message_over()
 			return
-		self.put_pieces()
-		# засунуть сюда сокрытие анимируемых фигур
-		# и заменить put pieces на этот метод
 
-	def message_if_over(self):
-		buttonReply = QMessageBox.information(self, '', 'Game over. Winner is '+self.game.winner, QMessageBox.Ok)
+		if self.moved_piece:
+			self.moved_piece.hide()
+			self.moved_piece = None
+		if self.moved_king:
+			self.moved_king.hide()
+			self.moved_king = None
+		if self.moved_rook:
+			self.moved_rook.hide()
+			self.moved_rook = None
+
+		self.put_pieces()
+
+
+	def message_over(self):
+		pers_message = 'You won!' if self.game.winner == 'Human' else 'You lost!'
+		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
 		if buttonReply == QMessageBox.Ok:
 			self.parent().close()
 
@@ -411,8 +327,7 @@ class QtBoard(QWidget):
 		print('boooard')
 		self.game.print_board()
 		self.update()
-		# self.game.print_comp_board()
-		# self.print_all_cells()
+
 
 	def load_session(self):
 		self.game.load_session()
@@ -457,13 +372,6 @@ class QtChess_000(QMainWindow):
 
 if __name__ == '__main__':
 
-# just board
-	# app = QApplication(sys.argv)
-	# mainWidget = QtBoard()
-	# mainWidget.show()
-	# sys.exit(app.exec_())
-# ----------------------------------------
-
 	app = QApplication(sys.argv)
 	mainWidget = QWidget()
 	horizontalLayout = QHBoxLayout()
@@ -483,8 +391,3 @@ if __name__ == '__main__':
 	mainWidget.setLayout(horizontalLayout)
 	mainWidget.show()
 	sys.exit(app.exec_())
-
-
-
-# ---
-# qtgame - main app, иниц-ся доска, опции игры, история (гуи элементы) и сама логика игры
