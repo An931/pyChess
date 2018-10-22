@@ -1,21 +1,7 @@
 
 from pieces import *
-# from board import *
 from players import *
 
-# игра - то, что запускается один раз при запске приложения
-
-# изменить:
-# 0 полностью прописать сохр и восст-е сессии ++ вроде есть ++
-	# (+ метод определения захваченных фигур)
-	# + изменить представление фигур в строк
-# 1 сделать инициализацию поля только из файла
-# 2 связать гуи
-# 3 прописать сохрание и чтение сессии
-# 4 убрать (переделать) extract_hum_move
-# 5 можно убрать класс доски, сделав ее простым словарем
-# игрок всегда играет белыми
-# убрать историю (добавлю потом если понадрбится)
 
 class Game:
 	def __init__(self):
@@ -116,7 +102,6 @@ class Game:
 			self.board[to_pos] = Queen(self.board[to_pos].color)
 		# if self.board[to_pos]: #was en_passant
 
-		# хз что, но почему то self.board[to_pos] = '' при рокировке
 		if self.board[to_pos]:
 			self.last_moved[self.board[to_pos].color] = to_pos
 
@@ -129,23 +114,24 @@ class Game:
 			return True
 		return False
 
-	def save_session(self, filename):
-		if self.over:
-			raise Exception
+
+	def save_session(self, ses_name):
+		filename = 'saved_sessions/{}.txt'.format(ses_name)
+
 		with open(filename, 'w+') as f:
 			for cell in self.board:
 				piece = self.board[cell]
 				str_format_piece = '{}("{}")'.format(type(piece).__name__, piece.color) if piece else '""'
-				# print(str_format_piece)
 				f.write("self.board['{}'] = {}\n".format(cell, str_format_piece))
 
 
-	def load_session(self, filename='ses.txt'):
-		# self.board = dict() # хз зачем оно, из-за него доска компа оставалась старой
+	def load_session(self, ses_name='ses'):
+		filename = 'saved_sessions/{}.txt'.format(ses_name)
+		# if not 
 		with open(filename) as f:
 			r = f.read()
 			lines = r.splitlines()
-			# формат: self.board['a1'] = Pawn(white)
+			# формат line: self.board['a1'] = Pawn(white)
 			for line in lines: 
 				exec(line)
 

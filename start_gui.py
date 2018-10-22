@@ -1,7 +1,7 @@
 import sys
 import time
 # from datetime import datetime
-#
+
 
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
@@ -10,16 +10,14 @@ from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout,
 	QVBoxLayout, QLabel, QMessageBox, QPushButton, QWidget)
 
-
-
 from game import *
 from players import *
-import time
+
 
 
 class QtPiece(QLabel):
 	def __init__(self, name, color, parent=None):
-		pixmap = QPixmap('pieces/{}.png'.format(color[0]+'_'+name))
+		pixmap = QPixmap('pieces_img/{}.png'.format(color[0]+'_'+name))
 		pixmap = pixmap.scaled(50, 50)
 		super(QLabel, self).__init__(parent)
 		self.setPixmap(pixmap)
@@ -28,7 +26,6 @@ class QtPiece(QLabel):
 		self.name = name
 		self.color = color
 		self.show()
-
 
 
 class QtCell(QFrame):
@@ -166,6 +163,7 @@ class QtBoard(QWidget):
 				else:
 					cell.del_piece()
 
+
 	def make_human_move(self, from_pos, to_pos):
 		self.game.make_move(from_pos, to_pos)
 
@@ -221,13 +219,12 @@ class QtBoard(QWidget):
 
 	def is_custeling(self, from_pos, to_pos):
 		# проверяет только позиции
-		# баг
 		return from_pos == 'e1' and to_pos in ['a1', 'h1']
 
 	def animate_custeling(self, from_pos, to_pos):
 		if not self.is_custeling(from_pos, to_pos):
 			raise Exception()
-		# _1 так как рокировка пока только у человека
+		# _1 так как рокировка только у человека
 		rook_future_place = 'f1' if to_pos == 'h1' else 'd1'
 		king_future_place = 'g1' if to_pos == 'h1' else 'c1'
 
@@ -286,70 +283,63 @@ class QtBoard(QWidget):
 
 
 	def mousePressEvent(self, event):
-		print('boooard')
-		self.game.print_board()
+		# self.game.print_board()
 		self.update()
 
 
-	def load_session(self):
-		self.game.load_session()
-		self.put_pieces()
+	def load_session(self, ses_name):
+		self.game.load_session(ses_name)
+		self.update()
 
-	def save_session(self):
-		self.game.save_session('ses.txt')
-
-
+	def save_session(self, ses_name):
+		self.game.save_session(ses_name)
 
 
-
-class QtChess_000(QMainWindow):
+class QtChess(QWidget):
 	def __init__(self):
-		super().__init__()
-		self.left = 200
-		self.top = 200
-		self.width = 550
-		self.height = 450
-		self.initUI()
+		super(QtChess, self).__init__()
 
+		horizontalLayout = QHBoxLayout()
+		board = QtBoard(self)
+		horizontalLayout.addWidget(board)
 
-	def initUI(self):
-		self.setWindowTitle('Chess')
-		self.setGeometry(self.left, self.top, self.width, self.height)
+		verticalLayout = QVBoxLayout()
+		save_ses_btn = QPushButton('save', self)
+		save_ses_btn.clicked.connect(board.save_session)
+		verticalLayout.addWidget(save_ses_btn)
+		load_ses_btn = QPushButton('load', self)
+		load_ses_btn.clicked.connect(board.load_session)
+		verticalLayout.addWidget(load_ses_btn)
 
-		self.board = QtBoard(self)
+		horizontalLayout.addLayout(verticalLayout)
 
-		self.game = Game()
-
+		self.setLayout(horizontalLayout)
 		self.show()
-
-	def initGame_0(self):
-		self.board = Board()
-		self.human = Player('white')
-		self.comp = Computer('black', self.board)
-		self.history = []
-		self.over = False
-
-
 
 
 if __name__ == '__main__':
-
 	app = QApplication(sys.argv)
-	mainWidget = QWidget()
-	horizontalLayout = QHBoxLayout()
-	board = QtBoard(mainWidget)
-	horizontalLayout.addWidget(board)
-
-	verticalLayout = QVBoxLayout()
-	save_ses_btn = QPushButton('save', mainWidget)
-	save_ses_btn.clicked.connect(board.save_session)
-	verticalLayout.addWidget(save_ses_btn)
-	load_ses_btn = QPushButton('load', mainWidget)
-	load_ses_btn.clicked.connect(board.load_session)
-	verticalLayout.addWidget(load_ses_btn)
-
-	horizontalLayout.addLayout(verticalLayout)
-
-	mainWidget.setLayout(horizontalLayout)
-	mainWidget.show()
+	chess = QtChess()
 	sys.exit(app.exec_())
+	# -----------------------
+	# app = QApplication(sys.argv)
+	# mainWidget = QWidget()
+	# horizontalLayout = QHBoxLayout()
+	# board = QtBoard(mainWidget)
+	# horizontalLayout.addWidget(board)
+
+	# verticalLayout = QVBoxLayout()
+	# save_ses_btn = QPushButton('save', mainWidget)
+	# save_ses_btn.clicked.connect(board.save_session)
+	# verticalLayout.addWidget(save_ses_btn)
+	# load_ses_btn = QPushButton('load', mainWidget)
+	# load_ses_btn.clicked.connect(board.load_session)
+	# verticalLayout.addWidget(load_ses_btn)
+
+	# horizontalLayout.addLayout(verticalLayout)
+
+	# mainWidget.setLayout(horizontalLayout)
+	# mainWidget.show()
+	# sys.exit(app.exec_())
+	# -----------------------------------------
+
