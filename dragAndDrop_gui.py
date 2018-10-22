@@ -78,14 +78,18 @@ class QtCell(QFrame):
 	def dropEvent(self, event):
 		from_pos = event.source().id
 		to_pos = self.id
-		self.board.make_human_move(from_pos, to_pos)
+		try:
+			self.board.make_human_move(from_pos, to_pos)
 
-		# перемещение иконки
-		event.setDropAction(Qt.MoveAction)
-		event.accept()
+			# перемещение иконки
+			event.setDropAction(Qt.MoveAction)
+			event.accept()
 
-		# if event.source() == self:
-		#     pass
+			# if event.source() == self:
+			#     pass
+		except:
+			# msg = QMessageBox.information(self.parent(), '', 'Incorrect move\n', QMessageBox.Ok)
+			return
 
 
 	def mousePressEvent(self, event):

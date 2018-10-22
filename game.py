@@ -83,6 +83,7 @@ class Game:
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')
 			self.print_board()
+			# return
 			raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):
