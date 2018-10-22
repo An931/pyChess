@@ -1,7 +1,5 @@
 import sys
-# import time
 import os
-# from datetime import datetime
 
 
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
@@ -13,7 +11,6 @@ from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog , QFrame, Q
 
 from game import *
 from players import *
-
 
 
 class QtPiece(QLabel):
@@ -30,31 +27,28 @@ class QtPiece(QLabel):
 
 
 class QtCell(QFrame):
-	def __init__(self, id, game, parent, piece=None):
+	def __init__(self, id, game, parent):
 		super(QtCell, self).__init__(parent)
 		self.game = game
 		self.piece = None
 		self.id = id
 		self.board = parent
-		self.setColor()
+		self.set_сolor()
 
 		self.setMinimumSize(50, 50)
 		self.setLineWidth(10)
 		self.setAcceptDrops(True)
 
-
 	def set_piece(self, piece_name, piece_color):
 		self.del_piece()
 		self.piece = QtPiece(piece_name, piece_color, self)
-
 
 	def del_piece(self):
 		if self.piece:
 			self.piece.hide()
 		self.piece = None
 
-
-	def setColor(self):
+	def set_сolor(self):
 		if self.id[0] in 'aceg' and self.id[1] in '1357'\
 			or self.id[0] in 'bdfh' and self.id[1] in '2468':
 			self.setStyleSheet('background-color:black;')
@@ -62,7 +56,6 @@ class QtCell(QFrame):
 		else:
 			self.setStyleSheet('background-color:white;')
 			self.color = 'white'
-
 
 	def dragEnterEvent(self, event):
 		if event.source() == self:
@@ -82,13 +75,9 @@ class QtCell(QFrame):
 			# перемещение иконки
 			event.setDropAction(Qt.MoveAction)
 			event.accept()
-
-			# if event.source() == self:
-			#     pass
 		except:
 			# msg = QMessageBox.information(self.parent(), '', 'Incorrect move\n', QMessageBox.Ok)
 			return
-
 
 	def mousePressEvent(self, event):
 		# нажатие именно на фигуру
@@ -153,7 +142,6 @@ class QtBoard(QWidget):
 		self.moved_rook = None
 		self.put_pieces()
 
-
 	def put_pieces(self):
 		# ставит фигуры в соответствие со своей логической доской
 		for row in self.layout().children():
@@ -163,7 +151,6 @@ class QtBoard(QWidget):
 					cell.set_piece(type(logic_piece).__name__, logic_piece.color)
 				else:
 					cell.del_piece()
-
 
 	def make_human_move(self, from_pos, to_pos):
 		self.game.make_move(from_pos, to_pos)
@@ -184,19 +171,13 @@ class QtBoard(QWidget):
 		# self.update()
 		self.make_computer_move()
 
-
 	def make_computer_move(self):
 		from_pos, to_pos = self.game.comp.get_move()
 		self.game.make_move(from_pos, to_pos)
 		self.animate_move(from_pos, to_pos)
 
 		from_cell = self.get_cell(from_pos)
-		to_cell = self.get_cell(to_pos)
-
 		from_cell.del_piece()
-
-
-
 
 	def animate_move(self, from_pos, to_pos):
 		from_pos_coords = self.get_coords(from_pos)
@@ -216,7 +197,6 @@ class QtBoard(QWidget):
 		self.anim.setEndValue(to_pos_coords)
 		self.anim.start()
 		self.anim.finished.connect(self.update)
-
 
 	def is_custeling(self, from_pos, to_pos):
 		# проверяет только позиции
@@ -241,18 +221,16 @@ class QtBoard(QWidget):
 		self.king_anim.start()
 
 		self.rook_anim = QPropertyAnimation(self.moved_rook, b'pos')
-		self.rook_anim.setDuration(1000) # speed
+		self.rook_anim.setDuration(1000)  # speed
 		self.rook_anim.setStartValue(self.get_coords(to_pos))
 		self.rook_anim.setEndValue(self.get_coords(rook_future_place))
 		self.rook_anim.start()
-
 
 	def get_cell(self, id):
 		for row in self.layout().children():
 			for cell in [row.itemAt(i).widget() for i in range(8)]:
 				if cell.id == id:
 					return cell
-
 
 	def get_coords(self, cell_id):
 		# возвращает координаты центра конкретной клетки относительно доски в пикселях
@@ -275,18 +253,16 @@ class QtBoard(QWidget):
 
 		self.put_pieces()
 
-
 	def message_over(self):
 		pers_message = 'You won!' if self.game.winner == 'Human' else 'You lost!'
 		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
 		if buttonReply == QMessageBox.Ok:
 			self.parent().close()
 
-
 	def mousePressEvent(self, event):
 		# self.game.print_board()
-		self.update()
-
+		# self.update()
+		pass
 
 	def load_session(self, ses_name='init'):
 		self.game.load_session(ses_name)
@@ -306,10 +282,10 @@ class QtChess(QWidget):
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
-		save_ses_btn.clicked.connect(self.save_btn)
+		save_ses_btn.clicked.connect(self.save_btn_func)
 		verticalLayout.addWidget(save_ses_btn)
 		load_ses_btn = QPushButton('load', self)
-		load_ses_btn.clicked.connect(self.load_btn)
+		load_ses_btn.clicked.connect(self.load_btn_func)
 		verticalLayout.addWidget(load_ses_btn)
 
 		horizontalLayout.addLayout(verticalLayout)
@@ -317,21 +293,19 @@ class QtChess(QWidget):
 		self.setLayout(horizontalLayout)
 		self.show()
 
-	def save_btn(self):
-		text, okPressed = QInputDialog.getText(self, "Save session","Enter session name:", QLineEdit.Normal, "")
+	def save_btn_func(self):
+		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
 		if okPressed and text != '':
-			# print(text)
 			self.board.save_session(text)
 
-	def load_btn(self):
-		# items = ("Red","Blue","Green")
+	def load_btn_func(self):
 		sessions = self.get_sessions_files()
-		ses_name, okPressed = QInputDialog.getItem(self, "Load session","Saved session:", sessions, 0, False)
+		ses_name, okPressed = QInputDialog.getItem(self, "Load session", "Saved session:", sessions, 0, False)
 		if okPressed and ses_name:
-			# print(self.get_sessions_files()) 
 			self.board.load_session(ses_name)
 		
-	def get_sessions_files(self, dirname='saved_sessions'):
+	def get_sessions_files(self):
+		dirname = 'saved_sessions'
 		files = os.listdir(dirname)
 		return [filename[:-4] for filename in files]
 
@@ -340,6 +314,7 @@ if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	chess = QtChess()
 	sys.exit(app.exec_())
+
 	# -----------------------
 	# app = QApplication(sys.argv)
 	# mainWidget = QWidget()

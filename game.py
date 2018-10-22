@@ -10,7 +10,6 @@ class Game:
 		self.over = False
 		self.winner = None
 
-		# self.last_moved = { 'white':None, 'black':None } # for check en passant
 		self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
 
@@ -44,32 +43,14 @@ class Game:
 				board[x+y] = get_piece(x, y)
 		return board
 
-	def make_human_move_0(self, from_pos, to_pos):
-		if self.board[from_pos] == '' or self.board[from_pos].color != 'white':
-			raise MoveError()
-		if len(get_pathway_cells()) > 0:
-			raise MoveError()
-		piece = self.board[from_pos]
-		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
-		if not can:
-			raise MoveError()
-		self.board[to_pos] = self.board[from_pos]
-		self.board[from_pos] = ''
-
-	def make_comp_move_0(self):
-		from_pos, to_pos = self.comp.get_move()
-		self.make_move(from_pos, to_pos)
-
 
 	def make_move(self, from_pos, to_pos):
-		print('current board:', self.board)
 		if self.over:
 			raise GameOverError
 
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')
 			self.print_board()
-			# return
 			raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):
@@ -95,12 +76,9 @@ class Game:
 			self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
 		self.board[to_pos] = self.board[from_pos]
 		self.board[from_pos] = ''
-		# print('end make move', self.board['a6'])
-		# print(self.board)
-		# self.save_session('ses.txt')
+
 		if self.need_to_promote_pawn(to_pos):
 			self.board[to_pos] = Queen(self.board[to_pos].color)
-		# if self.board[to_pos]: #was en_passant
 
 		if self.board[to_pos]:
 			self.last_moved[self.board[to_pos].color] = to_pos
@@ -127,14 +105,12 @@ class Game:
 
 	def load_session(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
-		# if not 
 		with open(filename) as f:
 			r = f.read()
 			lines = r.splitlines()
 			# формат line: self.board['a1'] = Pawn(white)
 			for line in lines: 
 				exec(line)
-
 
 
 	def is_correct_move(self, from_pos, to_pos):
@@ -144,19 +120,14 @@ class Game:
 			return True
 		piece = self.board[from_pos]
 		if piece == '':
-			# print('piece=" "')
-			# print(self.board)
 			return False
 		if self.board[to_pos] != '' and piece.color == self.board[to_pos].color:
-			# print('atack self piece')
 			return False
 
 		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
 		if not can:
-			# print('not can move')
 			return False
-			
-		# print('maybe barriers on pathway')
+
 		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 	def is_enpassant(self, from_pos, to_pos):
@@ -175,38 +146,6 @@ class Game:
 			return False
 		return True
 
-
-	def make_en_passant_0(self, from_pos, to_pos):
-		moved_pawn = self.board[from_pos]
-		if not isinstance(moved_pawn, Pawn):
-			raise MoveError
-		if moved_pawn.color == 'white' and \
-			(from_pos[1] != '5' or not moved_pawn.can_capture(from_pos, to_pos)):
-			raise MoveError
-		if moved_pawn.color == 'black' and \
-			(from_pos[1] != '4' or not moved_pawn.can_capture(from_pos, to_pos)):
-			raise MoveError
-		if self.board[to_pos] != '':
-			raise MoveError
-
-		captured_pawn_place = to_pos[0]+from_pos[1]
-		captured_pawn = self.board[captured_pawn_place]
-		if not isinstance(captured_pawn, Pawn):
-			raise MoveError
-
-		self.board[to_pos] = self.board[from_pos]
-		self.board[from_pos] = ''
-		self.board[captured_pawn_place] = ''
-
-
-
-	def is_special_method000(self, from_pos, to_pos):
-		def is_custeling_0():
-			return isinstance(self.board[from_pos], King) and \
-						 isinstance(self.board[to_pos], Rook) and \
-						( from_pos == 'e1' and (to_pos == 'a1' or to_pos == 'h1')  or \
-						 from_pos == 'e8' and (to_pos == 'a8' or to_pos == 'h8')) and \
-						not self.is_barrier_on_pathway(from_pos, to_pos)
 
 
 	def make_custeling(self, from_pos, to_pos):
@@ -230,6 +169,7 @@ class Game:
 		self.board[from_pos] = ''
 		self.board[to_pos] = ''
 
+
 	def is_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
 			return False
@@ -241,12 +181,9 @@ class Game:
 		return True
 
 
-
 	def is_barrier_on_pathway(self, from_pos, to_pos):
 		cells = self.get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
-		print('PATHCELLS', cells)
-		print('from_pos', from_pos, 'BARRIERS', barriers)
 		return len(barriers) > 0
 
 
@@ -254,32 +191,6 @@ class Game:
 		with open(point_name, 'r') as f:
 			exec(f.read())
 
-# ---------------------------
-	# def save_session(self, filename):
-	# 	with open(filename, 'w') as f:
-	# 		cells = self.board.keys().sort() # board - simple dict
-	# 		for cell in cells:
-	# 			f.write('{}:{}'.format(cell, self.board[cell]))
-
-	def print_board(self):
-		for i in '87654321':
-			s=''
-			for j in 'abcdefgh':
-				if self.board[j+i]:
-					s+=str(self.board[j+i])
-				else:
-					s+=' '
-			print(s)
-
-	def print_comp_board(self):
-		for i in '87654321':
-			s=''
-			for j in 'abcdefgh':
-				if self.comp.board[j+i]:
-					s+=str(self.comp.board[j+i])
-				else:
-					s+=' '
-			print(s)
 
 	def get_pathway_cells(self, from_pos, to_pos):
 		""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
@@ -309,7 +220,7 @@ class Game:
 					l = min_let + i
 					n = min_num + i
 					cells.append(chr(l)+str(n))
-			else:
+			else: # диагональ прав.низ - лев.верх
 				max_num = int(max(from_pos[1], to_pos[1]))
 				for i in range(1, delta):
 					l = min_let + i
@@ -334,8 +245,5 @@ class GameOverError(BaseException):
 
 class MoveError(BaseException):
 	pass
-
-
-from collections import defaultdict
 
 

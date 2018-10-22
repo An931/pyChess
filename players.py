@@ -2,30 +2,21 @@ import random
 from pieces import *
 
 
-# class Player:
-# 	pass
-
-
-class Computer():
+class Computer:
 	def __init__(self, game):
 		self.board = game.board
 		self.game = game
 		self.color = 'black'
-
 
 	def get_move(self):
 		# print(move.from_pos, move.to_pos)
 		# return self.get_random_movement()
 
 		move = self.get_sorted_movements()[0]
-		if not self.game.is_correct_move(*move):
-			print('!!!\n\nSOMETHING WRONG IN COMP LOGIC\n\n')
-
 		if not self.board[move[1]] and not self.game.is_enpassant(*move):
 			# чтобы ходы в начале игры не были одинаковыми 
 			return self.get_random_movement()
 		return move
-
 
 	def get_random_movement(self):
 		moves = self.get_all_movements()
@@ -37,7 +28,7 @@ class Computer():
 
 	def get_sorted_movements(self):
 		""" возвращает список ходов (tuple), упорядоченных по выгоде"""
-		candidats_to_move = self.get_all_movements() # словарь ходов {from : all where}
+		candidats_to_move = self.get_all_movements()  # словарь ходов {from : all where}
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
@@ -57,8 +48,6 @@ class Computer():
 
 	def get_movments_of_piece(self, cell_id): 
 		"""возвращает все возможные ходы данной фигуры"""
-		# if not self.board[id] or self.board[id].color != self.color:
-		# 	return 
 		piece = self.board[cell_id]
 		empty, enemy = self.get_empty_or_enemy_cells()
 		all_to_pos = empty + enemy
@@ -78,14 +67,12 @@ class Computer():
 		return (empty, enemy)
 
 
-
-class Move():
+class Move:
 	def __init__(self, from_pos, to_pos, board):
 		self.from_pos = from_pos
 		self.to_pos = to_pos
 		self.board = board
 		self.evaluate()
-		# self.move = (from_pos, to_pos)
 
 	def evaluate(self):
 		piece = self.board[self.to_pos]
