@@ -48,7 +48,7 @@ class QtCell(QFrame):
 	def set_piece(self, piece_name, piece_color):
 		self.del_piece()
 		self.piece = QtPiece(piece_name, piece_color, self)
-		# self.piece.show() # вызывается при создании фигуры
+
 
 	def del_piece(self):
 		if self.piece:
@@ -89,11 +89,7 @@ class QtCell(QFrame):
 
 
 	def mousePressEvent(self, event):
-		# if self.parent().moved_piece: # анимация пропадает, фигура копируется из анимации
-		# 	self.parent().moved_piece.hide()
-		# 	to_cell = self.parent().moved_piece.to_cell # вернуть эти две строчки, если надумаешь убрать update (put_pieces)
-		# 	to_cell.piece = QtPiece(self.parent().moved_piece.name, self.parent().moved_piece.color, to_cell)
-		# 	self.parent().moved_piece = None
+		# нажатие именно на фигуру
 		child = self.childAt(event.pos())
 		if not child:
 			return
@@ -156,13 +152,6 @@ class QtBoard(QWidget):
 		self.put_pieces()
 
 
-	def print_all_cells00(self):
-		for row in self.layout().children():
-			for cell in [row.itemAt(i).widget() for i in range(8)]:
-				piece = cell.piece.name if cell.piece else ""
-				print(cell.id, piece) 
-
-
 	def put_pieces(self):
 		# ставит фигуры в соответствие со своей логической доской
 		for row in self.layout().children():
@@ -172,35 +161,6 @@ class QtBoard(QWidget):
 					cell.set_piece(type(logic_piece).__name__, logic_piece.color)
 				else:
 					cell.del_piece()
-
-
-	def need_to_promote_pawn00_работает(self, to_pos):
-		if to_pos[1] != '1' and to_pos[1] != '8':
-			return False
-		logic_piece = self.game.board[to_pos]
-		# if isinstance(logic_piece, Pawn): # так было когда logic promotion вызывался только через gui, сейчас он работает сам
-		if isinstance(logic_piece, Queen):
-			return True
-		return False
-
-	def promote_pawn00_работает(self, to_pos):
-		if not self.need_to_promote_pawn(to_pos):
-			raise MoveError()
-			# return
-		logic_pawn = self.game.board[to_pos]
-		self.game.board[to_pos] = Queen(logic_pawn.color)
-		qt_cell = self.get_cell(to_pos)
-		qt_cell.set_piece('Queen', logic_pawn.color)
-
-	def promote_comp_pawn00(self, to_pos):
-		# invalid promotion
-		# чтобы внешне ферзя не появлялось, но логически фигура ходила как ферзь
-		if not self.need_to_promote_pawn(to_pos):
-			raise MoveError()
-			# return
-		logic_pawn = self.game.board[to_pos]
-		self.game.board[to_pos] = Queen(logic_pawn.color)
-
 
 	def make_human_move(self, from_pos, to_pos):
 		self.game.make_move(from_pos, to_pos)
@@ -267,8 +227,6 @@ class QtBoard(QWidget):
 		rook_future_place = 'f1' if to_pos == 'h1' else 'd1'
 		king_future_place = 'g1' if to_pos == 'h1' else 'c1'
 
-		# необходимо чтобы скрывать его в mouse_press
-		# иначе при наведении нельзя поставить фигуру на нее
 		self.moved_king = QtPiece('King', 'white', self)
 		self.moved_king.to_cell = self.get_cell(king_future_place)
 		self.moved_rook = QtPiece('Rook', 'white', self)
