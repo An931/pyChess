@@ -7,7 +7,7 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QFrame, QHBoxLayout,
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog , QFrame, QHBoxLayout,
 	QVBoxLayout, QLabel, QMessageBox, QPushButton, QWidget)
 
 from game import *
@@ -300,15 +300,15 @@ class QtChess(QWidget):
 		super(QtChess, self).__init__()
 
 		horizontalLayout = QHBoxLayout()
-		board = QtBoard(self)
-		horizontalLayout.addWidget(board)
+		self.board = QtBoard(self)
+		horizontalLayout.addWidget(self.board)
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
-		save_ses_btn.clicked.connect(board.save_session)
+		save_ses_btn.clicked.connect(self.board.save_session)
 		verticalLayout.addWidget(save_ses_btn)
 		load_ses_btn = QPushButton('load', self)
-		load_ses_btn.clicked.connect(board.load_session)
+		load_ses_btn.clicked.connect(self.load_btn)
 		verticalLayout.addWidget(load_ses_btn)
 
 		horizontalLayout.addLayout(verticalLayout)
@@ -316,6 +316,23 @@ class QtChess(QWidget):
 		self.setLayout(horizontalLayout)
 		self.show()
 
+	def load_btn(self):
+		items = ("Red","Blue","Green")
+		item, okPressed = QInputDialog.getItem(self, "Get item","Color:", items, 0, False)
+		if okPressed and item:
+				print(item) 
+		self.board.load_session()
+		
+	def getChoiceEXAMPLE(self):
+			items = ("Red","Blue","Green")
+			item, okPressed = QInputDialog.getItem(self, "Get item","Color:", items, 0, False)
+			if ok and item:
+					print(item)
+
+	def getTextEXAMPLE(self):
+			text, okPressed = QInputDialog.getText(self, "Get text","Your name:", QLineEdit.Normal, "")
+			if okPressed and text != '':
+					print(text)
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
