@@ -1,5 +1,6 @@
 import sys
-import time
+# import time
+import os
 # from datetime import datetime
 
 
@@ -8,7 +9,7 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog , QFrame, QHBoxLayout,
-	QVBoxLayout, QLabel, QMessageBox, QPushButton, QWidget)
+	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QWidget)
 
 from game import *
 from players import *
@@ -287,7 +288,7 @@ class QtBoard(QWidget):
 		self.update()
 
 
-	def load_session(self, ses_name):
+	def load_session(self, ses_name='init'):
 		self.game.load_session(ses_name)
 		self.update()
 
@@ -305,7 +306,7 @@ class QtChess(QWidget):
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
-		save_ses_btn.clicked.connect(self.board.save_session)
+		save_ses_btn.clicked.connect(self.save_btn)
 		verticalLayout.addWidget(save_ses_btn)
 		load_ses_btn = QPushButton('load', self)
 		load_ses_btn.clicked.connect(self.load_btn)
@@ -316,23 +317,24 @@ class QtChess(QWidget):
 		self.setLayout(horizontalLayout)
 		self.show()
 
-	def load_btn(self):
-		items = ("Red","Blue","Green")
-		item, okPressed = QInputDialog.getItem(self, "Get item","Color:", items, 0, False)
-		if okPressed and item:
-				print(item) 
-		self.board.load_session()
-		
-	def getChoiceEXAMPLE(self):
-			items = ("Red","Blue","Green")
-			item, okPressed = QInputDialog.getItem(self, "Get item","Color:", items, 0, False)
-			if ok and item:
-					print(item)
+	def save_btn(self):
+		text, okPressed = QInputDialog.getText(self, "Save session","Enter session name:", QLineEdit.Normal, "")
+		if okPressed and text != '':
+			# print(text)
+			self.board.save_session(text)
 
-	def getTextEXAMPLE(self):
-			text, okPressed = QInputDialog.getText(self, "Get text","Your name:", QLineEdit.Normal, "")
-			if okPressed and text != '':
-					print(text)
+	def load_btn(self):
+		# items = ("Red","Blue","Green")
+		sessions = self.get_sessions_files()
+		ses_name, okPressed = QInputDialog.getItem(self, "Load session","Saved session:", sessions, 0, False)
+		if okPressed and ses_name:
+			# print(self.get_sessions_files()) 
+			self.board.load_session(ses_name)
+		
+	def get_sessions_files(self, dirname='saved_sessions'):
+		files = os.listdir(dirname)
+		return [filename[:-4] for filename in files]
+
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)

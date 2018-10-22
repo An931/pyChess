@@ -125,7 +125,7 @@ class Game:
 				f.write("self.board['{}'] = {}\n".format(cell, str_format_piece))
 
 
-	def load_session(self, ses_name='ses'):
+	def load_session(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
 		# if not 
 		with open(filename) as f:
