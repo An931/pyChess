@@ -186,12 +186,6 @@ class Game:
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
 		return len(barriers) > 0
 
-
-	def start_from_point(point_name):
-		with open(point_name, 'r') as f:
-			exec(f.read())
-
-
 	def get_pathway_cells(self, from_pos, to_pos):
 		""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
 				Если траектория - прямая или диагональ, то возвращает список клеток между from и to
