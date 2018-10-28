@@ -8,7 +8,7 @@ class LogicGame:
 		self.board = LogicGame.create_board()
 
 		self.over = False
-		self.winner = None
+		self.win_color = None
 
 		self.history = [] # (from_pos. to_pos, piece)
 
@@ -74,6 +74,7 @@ class LogicGame:
 
 		if isinstance(self.board[to_pos], King): 
 			self.over = True
+			self.win_color =  self.board[from_pos].color 
 			# self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
 
 		self.board[to_pos] = self.board[from_pos]

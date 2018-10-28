@@ -77,17 +77,18 @@ class QtGameHotSeat(QWidget):
 
 
 	def message_over(self):
-		pers_message = 'You won!' if self.game.winner == 'Human' else 'You lost!'
+		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
 		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
 		if buttonReply == QMessageBox.Ok:
-			self.parent().close()
+			# self.close()
+			QApplication.quit()
 
 
-	def load_session(self, ses_name='init'):
+	def load_session00(self, ses_name='init'):
 		self.game.load_session(ses_name)
 		self.board.update()
 
-	def save_session(self, ses_name):
+	def save_session00(self, ses_name):
 		self.game.save_session(ses_name)
 
 

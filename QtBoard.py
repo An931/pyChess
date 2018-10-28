@@ -294,7 +294,7 @@ class QtBoard(QWidget):
 
 	def update(self):
 		if self.game.over:
-			self.message_over()
+			self.parent().message_over()
 			return
 
 		if self.moved_piece:
