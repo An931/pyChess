@@ -3,17 +3,17 @@ from pieces import *
 from players import *
 
 
-class Game:
+class LogicGame:
 	def __init__(self):
-		self.board = self.create_board()
-		self.comp = Computer(self)
+		self.board = LogicGame.create_board()
+
 		self.over = False
 		self.winner = None
 
 		self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
 
-	def create_board(self):
+	def create_board():
 		def get_strong_piece(x, color):
 			if x == 'a' or x == 'h':
 				return Rook(color)
@@ -44,13 +44,13 @@ class Game:
 		return board
 
 
-	def make_move(self, from_pos, to_pos):
+	def make_move(self, from_pos, to_pos, ):
 		if self.over:
 			raise GameOverError
 
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')
-			self.print_board()
+			# self.print_board()
 			raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):

@@ -1,12 +1,21 @@
 import random 
 from pieces import *
 
+class Player:
+	def __init__(self, color):
+		# self.board = game.board
+		# self.game = game
+		if color not in ['white', 'black']:
+			raise Exception
+		self.color = color
 
 class Computer:
-	def __init__(self, game):
+	def __init__(self, game, color='black'):
 		self.board = game.board
 		self.game = game
-		self.color = 'black'
+		if color not in ['white', 'black']:
+			raise Exception
+		self.color = color
 
 	def get_move(self):
 		# print(move.from_pos, move.to_pos)
