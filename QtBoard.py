@@ -243,6 +243,8 @@ class QtBoard(QWidget):
 		self.moved_piece = QtPiece(from_cell.piece.name, from_cell.piece.color, self)
 		self.moved_piece.to_cell = self.get_cell(to_pos)
 
+		from_cell.del_piece()
+
 		self.anim = QPropertyAnimation(self.moved_piece, b'pos')
 		self.anim.setDuration(1000) # speed
 
@@ -260,9 +262,11 @@ class QtBoard(QWidget):
 		rook_future_place = 'f'+str(n) if to_pos == 'h'+str(n) else 'd'+str(n)
 		king_future_place = 'g'+str(n) if to_pos == 'h'+str(n) else 'c'+str(n)
 
-		self.moved_king = QtPiece('King', 'white', self)
+		color = self.get_piece(from_pos).color
+
+		self.moved_king = QtPiece('King', color, self)
 		self.moved_king.to_cell = self.get_cell(king_future_place)
-		self.moved_rook = QtPiece('Rook', 'white', self)
+		self.moved_rook = QtPiece('Rook', color, self)
 		self.moved_rook.to_cell = self.get_cell(rook_future_place)
 
 		self.king_anim = QPropertyAnimation(self.moved_king, b'pos')
@@ -276,6 +280,9 @@ class QtBoard(QWidget):
 		self.rook_anim.setStartValue(self.get_coords(to_pos))
 		self.rook_anim.setEndValue(self.get_coords(rook_future_place))
 		self.rook_anim.start()
+
+		self.get_cell(from_pos).del_piece()
+		self.get_cell(to_pos).del_piece()
 
 		self.rook_anim.finished.connect(self.update)
 

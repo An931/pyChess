@@ -10,7 +10,7 @@ class Player:
 		self.color = color
 
 class Computer:
-	def __init__(self, game, color='black'):
+	def __init__(self, game, color):
 		self.board = game.board
 		self.game = game
 		if color not in ['white', 'black']:
