@@ -15,6 +15,8 @@ from QtCell import *
 from QtBoard import *
 
 
+class QtGame(QWidget):
+	pass
 
 
 class QtGameWithComputer(QWidget):
@@ -34,7 +36,7 @@ class QtGameWithComputer(QWidget):
 		# self.setAcceptDrops(True)
 
 		self.setVisualBoard()
-		self.show()
+		# self.show()
 
 	def setVisualBoard(self):
 		horizontalLayout = QHBoxLayout()
@@ -64,6 +66,7 @@ class QtGameWithComputer(QWidget):
 
 		if self.game.over:
 			self.message_over()
+			return
 
 		# self.acting_player = self.comp
 		self.make_comp_move()
@@ -103,6 +106,13 @@ class QtGameWithComputer(QWidget):
 		if buttonReply == QMessageBox.Ok:
 			# self.close()
 			QApplication.quit()
+
+	def load_session(self, ses_name='init'):
+		self.game.load_session(ses_name)
+		self.board.update()
+
+	def save_session(self, ses_name):
+		self.game.save_session(ses_name)
 
 
 class QtGameHotSeat(QWidget):
@@ -162,23 +172,22 @@ class QtGameHotSeat(QWidget):
 			# self.close()
 			QApplication.quit()
 
-	def load_session00(self, ses_name='init'):
+	def load_session(self, ses_name='init'):
 		self.game.load_session(ses_name)
 		self.board.update()
 
-	def save_session00(self, ses_name):
+	def save_session(self, ses_name):
 		self.game.save_session(ses_name)
 
 
 
-class QtChess00(QWidget):
-	def __init__(self):
+class QtChess(QWidget):
+	def __init__(self, qtGame):
 		super(QtChess, self).__init__()
 
 		horizontalLayout = QHBoxLayout()
-		game = LogicGame()
-		self.board = QtBoard(game, self)
-		horizontalLayout.addWidget(self.board)
+		self.game = qtGame
+		horizontalLayout.addWidget(self.game)
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
@@ -191,34 +200,33 @@ class QtChess00(QWidget):
 		horizontalLayout.addLayout(verticalLayout)
 
 		self.setLayout(horizontalLayout)
+		self.setWindowTitle('Chess')
 		self.show()
 
 	def save_btn_func(self):
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
 		if okPressed and text != '':
-			self.board.save_session(text)
+			self.game.save_session(text)
 
 	def load_btn_func(self):
 		sessions = self.get_sessions_files()
 		ses_name, okPressed = QInputDialog.getItem(self, "Load session", "Saved session:", sessions, 0, False)
 		if okPressed and ses_name:
-			self.board.load_session(ses_name)
+			self.game.load_session(ses_name)
 		
 	def get_sessions_files(self):
 		dirname = 'saved_sessions'
 		files = os.listdir(dirname)
 		return [filename[:-4] for filename in files]
 
-	def mousePressEvent(self, event):
-		# нажатие именно на фигуру
-		child = self.childAt(event.pos())
-		print(isinstance(child, QtPiece))
+
 
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	chess = QtGameWithComputer()
-	# chess = QtGameHotSeat()
+	game = QtGameWithComputer()
+	# game = QtGameHotSeat()
+	chess = QtChess(game)
 	sys.exit(app.exec_())
 
 	# -----------------------
