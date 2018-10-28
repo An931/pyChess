@@ -8,6 +8,7 @@ class Piece(object):
 				self.type = type
 				self.color = color
 				self.weight = weight
+				self.already_moved = False
 
 		def can_move(self, start, to):
 				raise NotImplementedError

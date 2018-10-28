@@ -70,10 +70,10 @@ class LogicGame:
 			self.board[from_pos] = ''
 			return
 
-
-		if isinstance(self.board[to_pos], King):
+		if isinstance(self.board[to_pos], King): 
 			self.over = True
-			self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
+			# self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
+
 		self.board[to_pos] = self.board[from_pos]
 		self.board[from_pos] = ''
 
@@ -82,6 +82,9 @@ class LogicGame:
 
 		if self.board[to_pos]:
 			self.last_moved[self.board[to_pos].color] = to_pos
+
+		if not self.board[to_pos].already_moved:
+			self.board[to_pos].already_moved = True
 
 
 	def need_to_promote_pawn(self, to_pos):
@@ -171,12 +174,14 @@ class LogicGame:
 
 
 	def is_custeling(self, from_pos, to_pos):
-		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
+		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
 			return False
 		if not isinstance(self.board[from_pos], King) or \
 				not isinstance(self.board[to_pos], Rook):
 			return False
 		if self.is_barrier_on_pathway(from_pos, to_pos):
+			return False
+		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
 			return False
 		return True
 
