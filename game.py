@@ -10,7 +10,9 @@ class LogicGame:
 		self.over = False
 		self.winner = None
 
-		self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
+		self.history = [] # (from_pos. to_pos, piece)
+
+		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
 
 	def create_board():
@@ -80,11 +82,12 @@ class LogicGame:
 		if self.need_to_promote_pawn(to_pos):
 			self.board[to_pos] = Queen(self.board[to_pos].color)
 
-		if self.board[to_pos]:
-			self.last_moved[self.board[to_pos].color] = to_pos
+		act_piece = self.board[to_pos]
 
-		if not self.board[to_pos].already_moved:
-			self.board[to_pos].already_moved = True
+		if not act_piece.already_moved:
+			act_piece.already_moved = True
+
+		self.history.append((from_pos, to_pos, act_piece))
 
 
 	def need_to_promote_pawn(self, to_pos):
@@ -145,8 +148,11 @@ class LogicGame:
 		enemy_pawn_place = to_pos[0] + from_pos[1]
 		if not isinstance(self.board[enemy_pawn_place], Pawn) or self.board[enemy_pawn_place].color == piece.color:
 			return False
-		if self.last_moved[self.board[enemy_pawn_place].color] != enemy_pawn_place:
+		if self.history[-1][1] != enemy_pawn_place:
 			return False
+		for moves in self.history:
+			if moves[1] == enemy_pawn_place and moves[2] == self.board[enemy_pawn_place]:
+				return False
 		return True
 
 
