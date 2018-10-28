@@ -6,7 +6,7 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog , QFrame, QHBoxLayout,
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog, QDialog, QFrame, QHBoxLayout,
 	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QWidget)
 
 from game import *
@@ -182,11 +182,11 @@ class QtGameHotSeat(QWidget):
 
 
 class QtChess(QWidget):
-	def __init__(self, qtGame):
+	def __init__(self):
 		super(QtChess, self).__init__()
 
+		self.game = self.ask_game_mode()
 		horizontalLayout = QHBoxLayout()
-		self.game = qtGame
 		horizontalLayout.addWidget(self.game)
 
 		verticalLayout = QVBoxLayout()
@@ -202,6 +202,15 @@ class QtChess(QWidget):
 		self.setLayout(horizontalLayout)
 		self.setWindowTitle('Chess')
 		self.show()
+
+
+	def ask_game_mode(self):
+		modes = ['one player', 'two players']
+		mode, okPressed = QInputDialog.getItem(self, "", "Choose game mode:", modes, 0, False)
+		if okPressed and mode:
+			return QtGameWithComputer() if (mode == 'one player') else QtGameHotSeat()
+
+
 
 	def save_btn_func(self):
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
@@ -224,9 +233,9 @@ class QtChess(QWidget):
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	game = QtGameWithComputer()
+	# game = QtGameWithComputer()
 	# game = QtGameHotSeat()
-	chess = QtChess(game)
+	chess = QtChess()
 	sys.exit(app.exec_())
 
 	# -----------------------
