@@ -46,15 +46,8 @@ class QtCell(QFrame):
 			self.color = 'white'
 
 	def highlight(self, do=True):
-		# if do:
-		# 	# color = red
-		# 	color = '#FFB4AD' if self.color == 'white' else '#750C00'
-		# 	self.setStyleSheet('background-color:{};'.format(color))
-		# else:
-		# 	self.setStyleSheet('background-color:{};'.format(self.color))
 		if do:
 			color = 'red'
-			# color = '#FFB4AD' if self.color == 'white' else '#750C00'
 			self.setStyleSheet('border: 2px solid {}; background-color:{};'.format(color, self.color))
 		else:
 			self.setStyleSheet('background-color:{};'.format(self.color))
@@ -71,15 +64,7 @@ class QtCell(QFrame):
 		from_pos = event.source().id
 		to_pos = self.id
 		self.game.try_make_move(from_pos, to_pos)
-		# try:
-		# 	self.game.make_human_move(from_pos, to_pos)
 
-		# 	# перемещение иконки
-		# 	event.setDropAction(Qt.MoveAction)
-		# 	event.accept()
-		# except:
-		# 	# msg = QMessageBox.information(self.parent(), '', 'Incorrect move\n', QMessageBox.Ok)
-		# 	return
 
 	def mousePressEvent(self, event):
 		# нажатие именно на фигуру

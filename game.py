@@ -5,8 +5,8 @@ import collections
 
 
 class LogicGame:
-	# def __init__(self, t_clor='black', b_color='white'): # ret when remove bugs
-	def __init__(self, t_clor, b_color):
+	def __init__(self, t_clor='black', b_color='white'): 
+	# def __init__(self, t_clor, b_color):
 		self.board = LogicGame.create_board(t_clor, b_color)
 
 		self.over = False

@@ -6,8 +6,8 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
-from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog, QDialog, QFrame, QHBoxLayout,
-	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QWidget)
+from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog, QCheckBox, QDialog,  QFrame, QHBoxLayout,
+	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QRadioButton, QComboBox, QWidget)
 
 from game import *
 from players import *
@@ -243,13 +243,36 @@ class QtChess(QWidget):
 		return [filename[:-4] for filename in files]
 
 
+class MenuWidget(QWidget):
+	def __init__(self):
+		super(MenuWidget, self).__init__()
+
+
+		verticalLayout = QVBoxLayout()
+		# choose one or two player
+		player_button = QCheckBox('player')
+		verticalLayout.addWidget(player_button)
+		btn1 = QRadioButton('radio')
+		btn3 = QComboBox()
+		btn3.addItem("C")
+		verticalLayout.addWidget(btn1)
+		verticalLayout.addWidget(btn3)
+		# add special features
+
+		self.setLayout(verticalLayout)
+
+	def get_game_mode(self):
+		# возвращает tuple (кол-во игроков; магараджа, кони или классик)
+		pass
 
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
 	# game = QtGameWithComputer()
 	# game = QtGameHotSeat()
-	chess = QtChess()
+	# chess = QtChess()
+	wind = MenuWidget()
+	wind.show()
 	sys.exit(app.exec_())
 
 	# -----------------------
