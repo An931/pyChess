@@ -1,5 +1,6 @@
 import random 
 from pieces import *
+# from game import *
 
 class Player:
 	def __init__(self, color):
@@ -76,6 +77,7 @@ class Computer:
 		return (empty, enemy)
 
 
+
 class Move:
 	def __init__(self, from_pos, to_pos, board):
 		self.from_pos = from_pos
@@ -92,5 +94,4 @@ class Move:
 		if isinstance(acting_piece, Pawn) and acting_piece.can_capture(self.from_pos, self.to_pos) \
 				and self.benefit == 0:
 			self.benefit = 1
-
 

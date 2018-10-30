@@ -22,7 +22,7 @@ class QtGame(QWidget):
 class QtGameWithComputer(QWidget):
 	def __init__(self, hum_color='white'):
 		super(QtGameWithComputer, self).__init__()
-		self.game = LogicGame()
+		self.game = LogicGame(t_clor='white', b_color='black')
 		self.board = QtBoard(self)
 
 		self.human = Player(hum_color)
@@ -164,6 +164,10 @@ class QtGameHotSeat(QWidget):
 			self.message_over()
 
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
+		# =====
+		if self.game.is_in_check('white') or self.game.is_in_check('black'):
+			self.message_over()
+			# ===========
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
@@ -186,6 +190,10 @@ class QtChess(QWidget):
 		super(QtChess, self).__init__()
 
 		self.game = self.ask_game_mode()
+		if not self.game:
+			print(self.game)
+			QApplication.quit()
+
 		horizontalLayout = QHBoxLayout()
 		horizontalLayout.addWidget(self.game)
 

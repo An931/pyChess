@@ -4,8 +4,8 @@ from players import *
 
 
 class LogicGame:
-	def __init__(self):
-		self.board = LogicGame.create_board()
+	def __init__(self, t_clor='black', b_color='white'):
+		self.board = LogicGame.create_board(t_clor, b_color)
 
 		self.over = False
 		self.win_color = None
@@ -15,7 +15,7 @@ class LogicGame:
 		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
 
-	def create_board():
+	def create_board(t_clor, b_color):
 		def get_strong_piece(x, color):
 			if x == 'a' or x == 'h':
 				return Rook(color)
@@ -29,14 +29,14 @@ class LogicGame:
 				return King(color)
 		def get_piece(x, y):
 			if y == '2':
-				return Pawn('white')
+				return Pawn(b_color)
 			if y == '7':
-				return Pawn('black')
+				return Pawn(t_clor)
 			if y == '1':
-				color = 'white'
+				color = b_color
 				return get_strong_piece(x, color)
 			if y == '8':
-				color = 'black'
+				color = t_clor
 				return get_strong_piece(x, color)
 			return ''
 		board = dict()
@@ -156,8 +156,6 @@ class LogicGame:
 				return False
 		return True
 
-
-
 	def make_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
 			raise MoveError
@@ -191,7 +189,6 @@ class LogicGame:
 		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
 			return False
 		return True
-
 
 	def is_barrier_on_pathway(self, from_pos, to_pos):
 		cells = self.get_pathway_cells(from_pos, to_pos)
@@ -244,6 +241,58 @@ class LogicGame:
 			return get_row(from_pos, to_pos)
 		return []
 
+	def is_in_check(self, king_color):
+		for pos in self.board:
+			if isinstance(self.board[pos], King) and self.board[pos].color == king_color:
+				king_pos = pos
+				continue
+		enemy_color = 'white' if (king_color == 'black') else 'black'
+		moves = self.get_sorted_movements(enemy_color)
+		if moves[0][1] == king_pos:
+			return True
+		return False
+
+
+	# --------------------------
+	def get_sorted_movements(self, color):
+		""" возвращает список ходов (tuple) игрока с цветом color, упорядоченных по выгоде"""
+		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
+		moves = []
+		for from_pos in candidats_to_move:
+			for to_pos in candidats_to_move[from_pos]:
+				moves.append(Move(from_pos, to_pos, self.board))
+		moves.sort(key=lambda x: x.benefit, reverse=True)
+		return [(m.from_pos, m.to_pos) for m in moves]
+
+	def get_all_movements(self, color):
+		""" возвращает словарь ходов {from : all where} """
+		candidats_to_move = {}
+		for cell, piece in self.board.items():
+			if piece and piece.color == color:
+				movements = self.get_movments_of_piece(cell)
+				if len(movements) > 0:
+					candidats_to_move[cell] = movements
+		return candidats_to_move
+
+	def get_movments_of_piece(self, cell_id): 
+		"""возвращает все возможные ходы данной фигуры"""
+		piece = self.board[cell_id]
+		# empty, enemy = self.get_empty_or_enemy_cells()
+		# all_to_pos = empty + enemy
+		moves = [to_pos for to_pos in self.board if self.is_correct_move(cell_id, to_pos)]
+		return moves
+
+	def get_empty_or_enemy_cells00(self, color):
+		""" возвр тапл списков: все пустые и все клетки противника"""
+		empty = []
+		enemy = []
+		for c in self.board.keys():
+			piece = self.board[c]
+			if not piece:
+				empty.append(c)
+			elif piece.color != color:
+				enemy.append(c)
+		return (empty, enemy)
 
 
 class GameOverError(BaseException):
@@ -251,5 +300,25 @@ class GameOverError(BaseException):
 
 class MoveError(BaseException):
 	pass
+
+
+
+class Move:
+	def __init__(self, from_pos, to_pos, board):
+		self.from_pos = from_pos
+		self.to_pos = to_pos
+		self.board = board
+		self.evaluate()
+
+	def evaluate(self):
+		piece = self.board[self.to_pos]
+		self.benefit = 0 if not piece else piece.weight
+
+		# для en passant
+		acting_piece = self.board[self.from_pos]
+		if isinstance(acting_piece, Pawn) and acting_piece.can_capture(self.from_pos, self.to_pos) \
+				and self.benefit == 0:
+			self.benefit = 1
+
 
 
