@@ -5,6 +5,8 @@ PIECES = {'white': {'Rook': '♖', 'Knight': '♘', 'Bishop': '♗', 'Queen': '�
 
 class Piece(object):
 		def __init__(self, type, color, weight):
+				if color not in ['white', 'black']:
+					raise Exception()
 				self.type = type
 				self.color = color
 				self.weight = weight
@@ -37,7 +39,7 @@ class Rook(Piece):
 class Knight(Piece):
 		def __init__(self, color):
 				super().__init__('Knight', color, 2)
-				self = Pawn('white')
+				# self = Pawn('white') #?????????????????????????????????????
 
 		def can_move(self, start, to):
 				dx = abs(ord(start[0]) - ord(to[0]))
@@ -78,9 +80,11 @@ class King(Piece):
 
 
 class Pawn(Piece):
-		def __init__(self, color):
+		def __init__(self, color, direction):
 				super().__init__('Pawn', color, 1)
-				self.direction = 'up' if color == 'white' else 'down'
+				if direction not in ['up', 'down']:
+					raise Exception()
+				self.direction = direction
 
 		def can_move(self, start, to):
 				if self.direction == 'up':

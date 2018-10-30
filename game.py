@@ -4,7 +4,8 @@ from players import *
 
 
 class LogicGame:
-	def __init__(self, t_clor='black', b_color='white'):
+	# def __init__(self, t_clor='black', b_color='white'): # ret when remove bugs
+	def __init__(self, t_clor, b_color):
 		self.board = LogicGame.create_board(t_clor, b_color)
 
 		self.over = False
@@ -29,9 +30,9 @@ class LogicGame:
 				return King(color)
 		def get_piece(x, y):
 			if y == '2':
-				return Pawn(b_color)
+				return Pawn(b_color, 'up')
 			if y == '7':
-				return Pawn(t_clor)
+				return Pawn(t_clor, 'down')
 			if y == '1':
 				color = b_color
 				return get_strong_piece(x, color)

@@ -22,11 +22,14 @@ class QtGame(QWidget):
 class QtGameWithComputer(QWidget):
 	def __init__(self, hum_color='white'):
 		super(QtGameWithComputer, self).__init__()
-		self.game = LogicGame(t_clor='white', b_color='black')
+
+		hum_color = 'black'
+		comp_color = 'white'
+
+		self.game = LogicGame(t_clor=comp_color, b_color=hum_color)
 		self.board = QtBoard(self)
 
 		self.human = Player(hum_color)
-		comp_color = 'black' if (hum_color == 'white') else 'white'
 		self.comp = Computer(self.game, comp_color)
 
 		# self.acting_player = self.human if hum_color == 'white' else self.comp
