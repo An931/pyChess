@@ -107,7 +107,8 @@ class LogicGame:
 		with open(filename, 'w+') as f:
 			for cell in self.board:
 				piece = self.board[cell]
-				str_format_piece = '{}("{}")'.format(type(piece).__name__, piece.color) if piece else '""'
+				direction = '"{}"'.format(piece.direction) if (isinstance(piece, Pawn)) else ''
+				str_format_piece = '{}("{}", {})'.format(type(piece).__name__, piece.color, direction) if piece else '""'
 				f.write("self.board['{}'] = {}\n".format(cell, str_format_piece))
 
 
