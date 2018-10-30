@@ -1,7 +1,8 @@
 
 from pieces import *
 from players import *
-
+import collections
+# from collections import deque
 
 class LogicGame:
 	# def __init__(self, t_clor='black', b_color='white'): # ret when remove bugs
@@ -12,6 +13,8 @@ class LogicGame:
 		self.win_color = None
 
 		self.history = [] # (from_pos. to_pos, piece)
+		# self.radioactive_cells = []
+		self.radioactive_cells = collections.deque(maxlen=3)
 
 		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
@@ -21,7 +24,8 @@ class LogicGame:
 			if x == 'a' or x == 'h':
 				return Rook(color)
 			if x == 'b' or x == 'g':
-				return Knight(color)
+				# return Knight(color)
+				return Knight(color, radioactive=True)
 			if x == 'c' or x == 'f':
 				return Bishop(color)
 			if x == 'd':
@@ -90,6 +94,27 @@ class LogicGame:
 			act_piece.already_moved = True
 
 		self.history.append((from_pos, to_pos, act_piece))
+		if act_piece.radioactive:
+			self.radioactive_cells.append(from_pos)
+
+	def is_correct_move(self, from_pos, to_pos):
+		if to_pos in self.radioactive_cells:
+			return False
+		if self.is_custeling(from_pos, to_pos):
+			return True
+		if self.is_enpassant(from_pos, to_pos):
+			return True
+		piece = self.board[from_pos]
+		if piece == '':
+			return False
+		if self.board[to_pos] != '' and piece.color == self.board[to_pos].color:
+			return False
+
+		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
+		if not can:
+			return False
+
+		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 
 	def need_to_promote_pawn(self, to_pos):
@@ -122,22 +147,6 @@ class LogicGame:
 				exec(line)
 
 
-	def is_correct_move(self, from_pos, to_pos):
-		if self.is_custeling(from_pos, to_pos):
-			return True
-		if self.is_enpassant(from_pos, to_pos):
-			return True
-		piece = self.board[from_pos]
-		if piece == '':
-			return False
-		if self.board[to_pos] != '' and piece.color == self.board[to_pos].color:
-			return False
-
-		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
-		if not can:
-			return False
-
-		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 	def is_enpassant(self, from_pos, to_pos):
 		piece = self.board[from_pos]

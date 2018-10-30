@@ -11,6 +11,8 @@ class Piece(object):
 				self.color = color
 				self.weight = weight
 				self.already_moved = False
+				# if radioactive and not isinstance(self, Knight):
+				# 	raise Exception('cold work incorrect')
 				self.radioactive = radioactive
 
 		def can_move(self, start, to):
@@ -38,8 +40,8 @@ class Rook(Piece):
 
 
 class Knight(Piece):
-		def __init__(self, color):
-				super().__init__('Knight', color, 2)
+		def __init__(self, color, radioactive=False):
+				super().__init__('Knight', color, 2, radioactive)
 				# self = Pawn('white') #?????????????????????????????????????
 
 		def can_move(self, start, to):

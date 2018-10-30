@@ -45,6 +45,13 @@ class QtCell(QFrame):
 			self.setStyleSheet('background-color:white;')
 			self.color = 'white'
 
+	def highlight(self, do=True):
+		# допилить "бледный" цвет
+		if do:
+			self.setStyleSheet('background-color:red;')
+		else:
+			self.setStyleSheet('background-color:{};'.format(self.color))
+
 	def dragEnterEvent(self, event):
 		if event.source() == self:
 			event.accept()

@@ -204,6 +204,23 @@ class QtBoard(QWidget):
 				else:
 					cell.del_piece()
 
+	def update(self):
+		if self.game.over:
+			self.parent().message_over()
+			return
+
+		if self.moved_piece:
+			self.moved_piece.hide()
+			self.moved_piece = None
+		if self.moved_king:
+			self.moved_king.hide()
+			self.moved_king = None
+		if self.moved_rook:
+			self.moved_rook.hide()
+			self.moved_rook = None
+
+		self.put_pieces()
+		self.update_radioactive()
 
 	def make_human_move000(self, from_pos, to_pos):
 		self.game.make_move(from_pos, to_pos)
@@ -299,19 +316,11 @@ class QtBoard(QWidget):
 		# возвращает координаты центра конкретной клетки относительно доски в пикселях
 		return self.get_cell(cell_id).pos()
 
-	def update(self):
-		if self.game.over:
-			self.parent().message_over()
-			return
-
-		if self.moved_piece:
-			self.moved_piece.hide()
-			self.moved_piece = None
-		if self.moved_king:
-			self.moved_king.hide()
-			self.moved_king = None
-		if self.moved_rook:
-			self.moved_rook.hide()
-			self.moved_rook = None
-
-		self.put_pieces()
+	def update_radioactive(self):
+		# pass
+		# пробегается по клеткам (лог или гуи) и подсвечивает либо делает как было
+		for cell in self.game.board:
+			if cell in self.game.radioactive_cells:
+				self.get_cell(cell).highlight()
+			else:
+				self.get_cell(cell).highlight(False)
