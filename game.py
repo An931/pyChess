@@ -2,7 +2,7 @@
 from pieces import *
 from players import *
 import collections
-# from collections import deque
+
 
 class LogicGame:
 	# def __init__(self, t_clor='black', b_color='white'): # ret when remove bugs
