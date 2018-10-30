@@ -192,13 +192,18 @@ class QtGameHotSeat(QWidget):
 
 
 class QtChess(QWidget):
-	def __init__(self):
+	def __init__(self, game):
 		super(QtChess, self).__init__()
 
-		self.game = self.ask_game_mode()
-		if not self.game:
-			print(self.game)
-			QApplication.quit()
+		if not isinstance(game, QtGameWithComputer) and not isinstance(game, QtGameHotSeat):
+			raise Exception()
+
+		self.game = game
+
+		# self.game = self.ask_game_mode()
+		# if not self.game:
+		# 	print(self.game)
+		# 	QApplication.quit()
 
 		horizontalLayout = QHBoxLayout()
 		horizontalLayout.addWidget(self.game)
@@ -218,7 +223,7 @@ class QtChess(QWidget):
 		self.show()
 
 
-	def ask_game_mode(self):
+	def ask_game_mode00(self):
 		modes = ['one player', 'two players']
 		mode, okPressed = QInputDialog.getItem(self, "", "Choose game mode:", modes, 0, False)
 		if okPressed and mode:
@@ -246,24 +251,34 @@ class QtChess(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
-
-
 		verticalLayout = QVBoxLayout()
-		# choose one or two player
-		player_button = QCheckBox('player')
-		verticalLayout.addWidget(player_button)
-		btn1 = QRadioButton('radio')
-		btn3 = QComboBox()
-		btn3.addItem("C")
-		verticalLayout.addWidget(btn1)
-		verticalLayout.addWidget(btn3)
+
+		self.one_player_radio = QRadioButton('one player')
+		self.one_player_radio.setChecked(True)
+		self.two_player_radio = QRadioButton('two player')
+		# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
+		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
+		verticalLayout.addWidget(self.one_player_radio)
+		verticalLayout.addWidget(self.two_player_radio)
+
 		# add special features
+		self.modes = QComboBox()
+		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
+		verticalLayout.addWidget(self.modes)
+
+		self.start_btn = QPushButton('Start')
+		self.start_btn.clicked.connect(self.start_game_mode)
+		verticalLayout.addWidget(self.start_btn)
 
 		self.setLayout(verticalLayout)
+		self.show()
 
-	def get_game_mode(self):
-		# возвращает tuple (кол-во игроков; магараджа, кони или классик)
-		pass
+	def start_game_mode(self):
+		# возвращает нужный объект - игру 
+		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
+		# self.hide()
+		chess = QtChess(game)
+		self.layout().addWidget(chess)
 
 
 if __name__ == '__main__':
@@ -272,7 +287,6 @@ if __name__ == '__main__':
 	# game = QtGameHotSeat()
 	# chess = QtChess()
 	wind = MenuWidget()
-	wind.show()
 	sys.exit(app.exec_())
 
 	# -----------------------
