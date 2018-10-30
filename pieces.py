@@ -4,13 +4,14 @@ PIECES = {'white': {'Rook': '♖', 'Knight': '♘', 'Bishop': '♗', 'Queen': '�
 
 
 class Piece(object):
-		def __init__(self, type, color, weight):
+		def __init__(self, type, color, weight, radioactive=False):
 				if color not in ['white', 'black']:
 					raise Exception()
 				self.type = type
 				self.color = color
 				self.weight = weight
 				self.already_moved = False
+				self.radioactive = radioactive
 
 		def can_move(self, start, to):
 				raise NotImplementedError
@@ -105,3 +106,4 @@ class Pawn(Piece):
 						dy = int(start[1]) - int(to[1])
 				dx = abs(ord(start[0]) - ord(to[0]))
 				return dx == 1 and dy == 1
+
