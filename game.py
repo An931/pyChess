@@ -77,7 +77,7 @@ class LogicGame:
 			self.board[from_pos] = ''
 			return
 
-		if isinstance(self.board[to_pos], King): 
+		if isinstance(self.board[to_pos], King) or isinstance(self.board[to_pos], Maharajah): 
 			self.over = True
 			self.win_color =  self.board[from_pos].color 
 			# self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
@@ -132,8 +132,10 @@ class LogicGame:
 		with open(filename, 'w+') as f:
 			for cell in self.board:
 				piece = self.board[cell]
-				direction = '"{}"'.format(piece.direction) if (isinstance(piece, Pawn)) else ''
-				str_format_piece = '{}("{}", {})'.format(type(piece).__name__, piece.color, direction) if piece else '""'
+				if (isinstance(piece, Pawn)):
+					str_format_piece = '{}("{}", "{}")'.format(type(piece).__name__, piece.color, piece.direction) if piece else '""'
+				else:
+					str_format_piece = '{}("{}")'.format(type(piece).__name__, piece.color) if piece else '""'
 				f.write("self.board['{}'] = {}\n".format(cell, str_format_piece))
 
 

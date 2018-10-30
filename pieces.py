@@ -109,3 +109,13 @@ class Pawn(Piece):
 				dx = abs(ord(start[0]) - ord(to[0]))
 				return dx == 1 and dy == 1
 
+class Maharajah(Piece):
+		def __init__(self, color):
+				super().__init__('Maharajah', color, 6)
+
+		def can_move(self, start, to):
+				knight = Knight(self.color)
+				queen = Queen(self.color)
+				return knight.can_move(start, to) or queen.can_move(start, to)
+
+
