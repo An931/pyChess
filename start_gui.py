@@ -232,7 +232,7 @@ class QtChess(QWidget):
 
 
 
-	def save_btn_func(self):
+	def save_btn_func(self): 
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
 		if okPressed and text != '':
 			self.game.save_session(text)
