@@ -20,7 +20,6 @@ class QtChess(QWidget):
 	def __init__(self):
 		super(QtChess, self).__init__()
 
-
 	def setVisualBoard(self):
 		horizontalLayout = QHBoxLayout()
 		horizontalLayout.addWidget(self.board)
@@ -47,9 +46,6 @@ class QtGameWithComputer(QtChess):
 	def __init__(self, hum_color='white'):
 		super(QtGameWithComputer, self).__init__()
 
-		# hum_color = 'black'
-		# comp_color = 'white'
-
 		hum_color = 'white'
 		comp_color = 'black'
 
@@ -67,10 +63,8 @@ class QtGameWithComputer(QtChess):
 		self.setVisualBoard()
 		self.show()
 
-	def setVisualBoard(self):
-		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.board)
-		self.setLayout(horizontalLayout)
+		# if 
+
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
@@ -150,10 +144,6 @@ class QtGameHotSeat(QtChess):
 		self.setVisualBoard()
 		self.show()
 
-	def setVisualBoard(self):
-		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.board)
-		self.setLayout(horizontalLayout)
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
@@ -190,7 +180,7 @@ class QtGameHotSeat(QtChess):
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
-		super.message_over(pers_message)
+		super().message_over(pers_message)
 
 
 
