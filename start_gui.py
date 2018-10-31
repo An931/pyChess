@@ -228,78 +228,22 @@ class QtGame(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
-		verticalLayout = QVBoxLayout()
+		self.verticalLayout = QVBoxLayout()
+		self.add_player_count_radio()
+		self.add_change_color()
+		self.add_hide_color_choice()
+		self.add_modes()
+		self.add_choice_mah_position()
+		self.add_start_btn()
 
-		# choose one or two
-		self.one_player_radio = QRadioButton('one player')
-		self.one_player_radio.setChecked(True)
-		self.two_player_radio = QRadioButton('two player')
-		# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
-		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
-		verticalLayout.addWidget(self.one_player_radio)
-		verticalLayout.addWidget(self.two_player_radio)
-
-		# set color (if play with computer)
-		horizontalLayout = QHBoxLayout()
-		self.color_inf = QFrame()
-		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-		self.color_inf.setMaximumSize(30, 30)
-		supported_frame = QFrame() # for other elements don't move when hide
-
-		self.change_color_btn = QPushButton('change my color')
-		def change_clr():
-			if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
-				self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
-			else:
-				self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-		self.change_color_btn.clicked.connect(change_clr)
-		# self.black_color_btn.clicked.connect()
-		horizontalLayout.addWidget(self.color_inf)
-		horizontalLayout.addWidget(self.change_color_btn)
-		horizontalLayout.addWidget(supported_frame)
-
-		verticalLayout.addLayout(horizontalLayout)
-
-		# to hide color choice if two players
-		def hide_or_show_choice_clr():
-			self.color_inf.setHidden(not self.color_inf.isHidden())
-			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
-		self.two_player_radio.toggled.connect(lambda:hide_or_show_choice_clr())
-
-		# add special features
-		self.modes = QComboBox()
-		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
-		verticalLayout.addWidget(self.modes)
-
-		horizontalLayout = QHBoxLayout()
-		self.mah_pos = QComboBox()
-		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
-		supported_frame = QFrame()
-		text = QLineEdit('Chose Maharajah position')
-		horizontalLayout.addWidget(self.mah_pos)
-		horizontalLayout.addWidget(supported_frame)
-		horizontalLayout.addWidget(text)
-		verticalLayout.addLayout(horizontalLayout)
-
-		# to hide choose maharajah position
-		def hide_or_show_choose_mah_pos():
-			self.color_inf.setHidden(not self.color_inf.isHidden())
-			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
-		# self.two_player_radio.toggled.connect(lambda:hide_or_show_choose_mah_pos())
-
-
-		# start button
-		self.start_btn = QPushButton('Start')
-		self.start_btn.clicked.connect(self.start_game_mode)
-		verticalLayout.addWidget(self.start_btn)
-
-		self.setLayout(verticalLayout)
+		self.setLayout(self.verticalLayout)
 		self.setMinimumSize(400, 300)
 		self.show()
 
 	def start_game_mode(self):
 		# создает (начинает) нужный объект - игру 
 		self.hide()
+		# combo box --currentText()
 
 		if self.one_player_radio.isChecked():
 			hum_color = 'white' if (self.color_inf.palette().color(QPalette.Background).name() == '#ffffff') else 'black'
@@ -308,6 +252,76 @@ class MenuWidget(QWidget):
 			game = QtGameHotSeat()
 
 		self.game = QtGame(game)
+
+	def add_player_count_radio(self):
+			# choose one or two
+			self.one_player_radio = QRadioButton('one player')
+			self.one_player_radio.setChecked(True)
+			self.two_player_radio = QRadioButton('two player')
+			# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
+			# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
+			self.verticalLayout.addWidget(self.one_player_radio)
+			self.verticalLayout.addWidget(self.two_player_radio)
+
+	def add_change_color(self):
+			# set color (if play with computer)
+			horizontalLayout = QHBoxLayout()
+			self.color_inf = QFrame()
+			self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+			self.color_inf.setMaximumSize(30, 30)
+			supported_frame = QFrame() # for other elements don't move when hide
+
+			self.change_color_btn = QPushButton('change my color')
+			def change_clr():
+				if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
+					self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
+				else:
+					self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+			self.change_color_btn.clicked.connect(change_clr)
+			# self.black_color_btn.clicked.connect()
+			horizontalLayout.addWidget(self.color_inf)
+			horizontalLayout.addWidget(self.change_color_btn)
+			horizontalLayout.addWidget(supported_frame)
+
+			self.verticalLayout.addLayout(horizontalLayout)
+
+	def add_hide_color_choice(self):
+		# to hide color choice if two players
+		def hide_or_show_choice_clr():
+			self.color_inf.setHidden(not self.color_inf.isHidden())
+			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
+		self.two_player_radio.toggled.connect(lambda:hide_or_show_choice_clr())
+
+	def add_modes(self):
+			# add special features
+			self.modes = QComboBox()
+			self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
+			self.verticalLayout.addWidget(self.modes)
+			# verticalLayout.addSpacing(30)
+
+	def add_choice_mah_position(self):
+			horizontalLayout = QHBoxLayout()
+			self.mah_pos = QComboBox()
+			self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
+			supported_frame = QFrame()
+			text = QLineEdit('Chose Maharajah position')
+			horizontalLayout.addWidget(self.mah_pos)
+			horizontalLayout.addWidget(supported_frame)
+			horizontalLayout.addWidget(text)
+			self.verticalLayout.addLayout(horizontalLayout)
+
+			# to hide choose maharajah position
+			def hide_or_show_choose_mah_pos():
+				self.color_inf.setHidden(not self.color_inf.isHidden())
+				self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
+			# self.two_player_radio.toggled.connect(lambda:hide_or_show_choose_mah_pos())
+
+	def add_start_btn(self):
+			self.verticalLayout.addSpacing(100)
+			# start button
+			self.start_btn = QPushButton('Start')
+			self.start_btn.clicked.connect(self.start_game_mode)
+			self.verticalLayout.addWidget(self.start_btn)
 
 
 if __name__ == '__main__':
