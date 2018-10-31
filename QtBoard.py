@@ -320,7 +320,10 @@ class QtBoard(QWidget):
 		# pass
 		# пробегается по клеткам (лог или гуи) и подсвечивает либо делает как было
 		for cell in self.game.board:
-			if cell in self.game.radioactive_cells:
-				self.get_cell(cell).highlight()
-			else:
-				self.get_cell(cell).highlight(False)
+			# if cell in self.game.radioactive_cells:
+			for tup in self.game.last_from_poses:
+				if tup[0] == cell and tup[1]:
+					self.get_cell(cell).highlight()
+					break
+				else:
+					self.get_cell(cell).highlight(False)

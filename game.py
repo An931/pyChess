@@ -18,7 +18,8 @@ class LogicGame:
 
 		self.history = [] # (from_pos. to_pos, piece)
 		# self.radioactive_cells = []
-		self.radioactive_cells = collections.deque(maxlen=3)
+		# self.radioactive_cells = collections.deque(maxlen=3)
+		self.last_from_poses = collections.deque(maxlen=6) #tuple (from_pos, is_radio(True/False))
 
 		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
 
@@ -65,13 +66,18 @@ class LogicGame:
 		if not act_piece.already_moved:
 			act_piece.already_moved = True
 
-		self.history.append((from_pos, to_pos, act_piece))
-		if act_piece.radioactive:
-			self.radioactive_cells.append(from_pos)
+		# self.history.append((from_pos, to_pos, act_piece))
+		# if act_piece.radioactive:
+		# 	self.radioactive_cells.append(from_pos)
+		self.last_from_poses.append((from_pos, act_piece.radioactive))
+
+
 
 	def is_correct_move(self, from_pos, to_pos):
-		if to_pos in self.radioactive_cells:
-			return False
+		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
+		for tup in self.last_from_poses:
+			if tup[0] == to_pos and tup[1]:
+				return False
 		if self.is_custeling(from_pos, to_pos):
 			return True
 		if self.is_enpassant(from_pos, to_pos):
