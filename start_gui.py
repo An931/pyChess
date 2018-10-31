@@ -231,7 +231,6 @@ class MenuWidget(QWidget):
 		self.verticalLayout = QVBoxLayout()
 		self.add_player_count_radio()
 		self.add_change_color()
-		self.add_hide_color_choice()
 		self.add_modes()
 		self.add_choice_mah_position()
 		self.add_start_btn()
@@ -253,75 +252,85 @@ class MenuWidget(QWidget):
 
 		self.game = QtGame(game)
 
+
 	def add_player_count_radio(self):
-			# choose one or two
-			self.one_player_radio = QRadioButton('one player')
-			self.one_player_radio.setChecked(True)
-			self.two_player_radio = QRadioButton('two player')
-			# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
-			# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
-			self.verticalLayout.addWidget(self.one_player_radio)
-			self.verticalLayout.addWidget(self.two_player_radio)
+		self.one_player_radio = QRadioButton('one player')
+		self.one_player_radio.setChecked(True)
+		self.two_player_radio = QRadioButton('two player')
+		# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
+		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
+		self.verticalLayout.addWidget(self.one_player_radio)
+		self.verticalLayout.addWidget(self.two_player_radio)
 
 	def add_change_color(self):
-			# set color (if play with computer)
-			horizontalLayout = QHBoxLayout()
-			self.color_inf = QFrame()
-			self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-			self.color_inf.setMaximumSize(30, 30)
-			supported_frame = QFrame() # for other elements don't move when hide
+		horizontalLayout = QHBoxLayout()
+		self.color_inf = QFrame()
+		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		self.color_inf.setMaximumSize(30, 30)
+		supported_frame = QFrame() # for other elements don't move when hide
 
-			self.change_color_btn = QPushButton('change my color')
-			def change_clr():
-				if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
-					self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
-				else:
-					self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-			self.change_color_btn.clicked.connect(change_clr)
-			# self.black_color_btn.clicked.connect()
-			horizontalLayout.addWidget(self.color_inf)
-			horizontalLayout.addWidget(self.change_color_btn)
-			horizontalLayout.addWidget(supported_frame)
+		self.change_color_btn = QPushButton('change my color')
+		def change_clr():
+			if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
+				self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
+			else:
+				self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		self.change_color_btn.clicked.connect(change_clr)
+		# self.black_color_btn.clicked.connect()
+		horizontalLayout.addWidget(self.color_inf)
+		horizontalLayout.addWidget(self.change_color_btn)
+		horizontalLayout.addWidget(supported_frame)
 
-			self.verticalLayout.addLayout(horizontalLayout)
+		self.verticalLayout.addLayout(horizontalLayout)
+
+		self.add_hide_color_choice()
 
 	def add_hide_color_choice(self):
-		# to hide color choice if two players
 		def hide_or_show_choice_clr():
 			self.color_inf.setHidden(not self.color_inf.isHidden())
 			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
-		self.two_player_radio.toggled.connect(lambda:hide_or_show_choice_clr())
+		self.two_player_radio.toggled.connect(hide_or_show_choice_clr)
 
 	def add_modes(self):
-			# add special features
-			self.modes = QComboBox()
-			self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
-			self.verticalLayout.addWidget(self.modes)
-			# verticalLayout.addSpacing(30)
+		# add special features
+		self.modes = QComboBox()
+		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
+		self.verticalLayout.addWidget(self.modes)
 
 	def add_choice_mah_position(self):
-			horizontalLayout = QHBoxLayout()
-			self.mah_pos = QComboBox()
-			self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
-			supported_frame = QFrame()
-			text = QLineEdit('Chose Maharajah position')
-			horizontalLayout.addWidget(self.mah_pos)
-			horizontalLayout.addWidget(supported_frame)
-			horizontalLayout.addWidget(text)
-			self.verticalLayout.addLayout(horizontalLayout)
+		horizontalLayout = QHBoxLayout()
+		self.mah_pos = QComboBox()
+		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
+		supported_frame = QFrame()
+		self.mah_text = QLabel('Chose Maharajah position')
+		horizontalLayout.addWidget(self.mah_pos)
+		horizontalLayout.addWidget(supported_frame)
+		horizontalLayout.addWidget(self.mah_text)
+		self.verticalLayout.addLayout(horizontalLayout)
 
-			# to hide choose maharajah position
-			def hide_or_show_choose_mah_pos():
-				self.color_inf.setHidden(not self.color_inf.isHidden())
-				self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
-			# self.two_player_radio.toggled.connect(lambda:hide_or_show_choose_mah_pos())
+		self.mah_pos.hide()
+		self.mah_text.hide()
+		self.add_hide_mah_choice()
+
+
+	def add_hide_mah_choice(self):
+		# to hide choose maharajah position
+		def hide_or_show_choose_mah_pos():
+			if self.modes.currentText() == 'Maharajah':
+				self.mah_pos.show()
+				self.mah_text.show()
+			else:
+				self.mah_pos.hide()
+				self.mah_text.hide()
+		self.modes.currentIndexChanged.connect(hide_or_show_choose_mah_pos)
+
 
 	def add_start_btn(self):
-			self.verticalLayout.addSpacing(100)
-			# start button
-			self.start_btn = QPushButton('Start')
-			self.start_btn.clicked.connect(self.start_game_mode)
-			self.verticalLayout.addWidget(self.start_btn)
+		self.verticalLayout.addSpacing(100)
+		# start button
+		self.start_btn = QPushButton('Start')
+		self.start_btn.clicked.connect(self.start_game_mode)
+		self.verticalLayout.addWidget(self.start_btn)
 
 
 if __name__ == '__main__':
