@@ -5,9 +5,13 @@ import collections
 
 
 class LogicGame:
-	def __init__(self, t_clor='black', b_color='white'): 
-	# def __init__(self, t_clor, b_color):
-		self.board = LogicGame.create_board(t_clor, b_color)
+	# def __init__(self, t_clor='black', b_color='white'): 
+	def __init__(self, t_color, b_color, radioactive=False, maharajah = False):
+		# костыльненько - Maharajah либо False либо (цвет и позиция)
+		if maharajah:
+			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
+		else:
+			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 
 		self.over = False
 		self.win_color = None
@@ -17,38 +21,6 @@ class LogicGame:
 		self.radioactive_cells = collections.deque(maxlen=3)
 
 		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
-
-
-	def create_board(t_clor, b_color):
-		def get_strong_piece(x, color):
-			if x == 'a' or x == 'h':
-				return Rook(color)
-			if x == 'b' or x == 'g':
-				# return Knight(color)
-				return Knight(color, radioactive=True)
-			if x == 'c' or x == 'f':
-				return Bishop(color)
-			if x == 'd':
-				return Queen(color)
-			if x == 'e':
-				return King(color)
-		def get_piece(x, y):
-			if y == '2':
-				return Pawn(b_color, 'up')
-			if y == '7':
-				return Pawn(t_clor, 'down')
-			if y == '1':
-				color = b_color
-				return get_strong_piece(x, color)
-			if y == '8':
-				color = t_clor
-				return get_strong_piece(x, color)
-			return ''
-		board = dict()
-		for x in 'abcdefgh':
-			for y in '12345678':
-				board[x+y] = get_piece(x, y)
-		return board
 
 
 	def make_move(self, from_pos, to_pos, ):
@@ -256,7 +228,7 @@ class LogicGame:
 
 	def is_in_check(self, king_color):
 		for pos in self.board:
-			if isinstance(self.board[pos], King) and self.board[pos].color == king_color:
+			if self.board[pos] and self.board[pos].color == king_color and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
 				king_pos = pos
 				continue
 		enemy_color = 'white' if (king_color == 'black') else 'black'
@@ -334,4 +306,58 @@ class Move:
 			self.benefit = 1
 
 
+class BoardCreator:
+	def create_board(t_color, b_color, radioactive):
+		board = dict()
+		for x in 'abcdefgh':
+			for y in '12345678':
+				board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color, radioactive)
+		return board
 
+	def get_piece(x, y, t_color, b_color, radioactive=False):
+		if y == '2':
+			return Pawn(b_color, 'up')
+		if y == '7':
+			return Pawn(t_color, 'down')
+		if y == '1':
+			# color = b_color
+			return BoardCreator.get_strong_piece(x, b_color, radioactive)
+		if y == '8':
+			# color = t_clor
+			return BoardCreator.get_strong_piece(x, t_color, radioactive)
+		return ''
+
+	def get_strong_piece(x, color, radioactive_knights):
+		if x == 'a' or x == 'h':
+			return Rook(color)
+		if x == 'b' or x == 'g':
+			# return Knight(color)
+			return Knight(color, radioactive=radioactive_knights)
+		if x == 'c' or x == 'f':
+			return Bishop(color)
+		if x == 'd':
+			return Queen(color)
+		if x == 'e':
+			return King(color)
+
+	def get_maharajah_board(t_color, b_color, mah_color, mah_pos):
+		board = dict()
+		if mah_pos[1] not in ['1', '2', '7', '8']:
+			raise Exception('wrong Maharajah position')
+
+		if mah_pos[1] in '12':
+			for x in 'abcdefgh':
+				for y in '345678':
+					board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color)
+				for y in '12':
+					board[x+y] = ''
+
+		else:
+			for x in 'abcdefgh':
+				for y in '123456':
+					board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color)
+				for y in '78':
+					board[x+y] = ''
+
+		board[mah_pos] = Maharajah(mah_color)
+		return board

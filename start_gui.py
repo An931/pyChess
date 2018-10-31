@@ -43,12 +43,12 @@ class QtChess(QWidget):
 
 
 class QtGameWithComputer(QtChess):
-	def __init__(self, hum_color='white'):
+	def __init__(self, hum_color='white', radioactive=False, maharajah = False):
 		super(QtGameWithComputer, self).__init__()
 
 		comp_color = 'black' if hum_color == 'white' else 'white'
 
-		self.game = LogicGame(t_clor=comp_color, b_color=hum_color)
+		self.game = LogicGame(comp_color, hum_color, radioactive, maharajah)
 		self.board = QtBoard(self)
 
 		self.human = Player(hum_color)
@@ -127,11 +127,11 @@ class QtGameWithComputer(QtChess):
 
 
 class QtGameHotSeat(QtChess):
-	def __init__(self):
+	def __init__(self, radioactive=False, maharajah=False):
 		super(QtGameHotSeat, self).__init__()
 		self.human_w = Player('white')
 		self.human_b = Player('black')
-		self.game = LogicGame()
+		self.game = LogicGame('black', 'white', radioactive, maharajah)
 		self.board = QtBoard(self)
 
 		self.acting_player = self.human_w
@@ -171,8 +171,9 @@ class QtGameHotSeat(QtChess):
 
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
 		# =====
-		if self.game.is_in_check('white') or self.game.is_in_check('black'):
-			self.message_over()
+		# сбщ если шах
+		# if self.game.is_in_check('white') or self.game.is_in_check('black'):
+		# 	self.message_over()
 			# ===========
 
 	def message_over(self):
@@ -244,19 +245,35 @@ class MenuWidget(QWidget):
 		self.hide()
 		# combo box --currentText()
 
-		if self.one_player_radio.isChecked():
-			hum_color = 'white' if (self.change_color_btn.palette().color(QPalette.Background).name() == '#ffffff') else 'black'
-			game = QtGameWithComputer(hum_color)
+		# play with computer
+		if self.one_player_radio.isChecked(): 
+			hum_color = self.change_color_btn.text()
+			if self.modes.currentText() == 'With radioactive knights':
+				game = QtGameWithComputer(hum_color, radioactive=True)
+			elif self.modes.currentText() == 'Maharajah':
+				mah_pos = self.mah_pos.currentText()
+				mah_color = self.change_color_btn.text() # при игре с компом цвет Магараджи совпадает с цветом игрока
+				game = QtGameWithComputer(hum_color, maharajah=(mah_color, mah_pos))
+			else:
+				game = QtGameWithComputer(hum_color)
+
 		else:
-			game = QtGameHotSeat()
+			if self.modes.currentText() == 'With radioactive knights':
+				game = QtGameHotSeat(radioactive=True)
+			elif self.modes.currentText() == 'Maharajah':
+				mah_pos = self.mah_pos.currentText()
+				mah_color = self.mah_color.text()
+				game = QtGameHotSeat(maharajah=(mah_color, mah_pos))
+			else:
+				game = QtGameHotSeat()
 
 		self.game = QtGame(game)
 
 
 	def add_player_count_radio(self):
-		self.one_player_radio = QRadioButton('one player')
+		self.one_player_radio = QRadioButton('One player (play with Computer)')
 		self.one_player_radio.setChecked(True)
-		self.two_player_radio = QRadioButton('two player')
+		self.two_player_radio = QRadioButton('Two players')
 		# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
 		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
 		self.verticalLayout.addWidget(self.one_player_radio)
@@ -303,11 +320,14 @@ class MenuWidget(QWidget):
 
 	def add_choice_mah_position(self):
 		def change_clr():
+			self.mah_pos.clear()
 			if self.mah_color.text() == 'white':
 				self.mah_color.setText('black')
+				self.mah_pos.addItems(['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7', 'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'])
 				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:black;')
 			else:
 				self.mah_color.setText('white')
+				self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
 				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
 		
 		horizontalLayout = QHBoxLayout()
@@ -335,7 +355,8 @@ class MenuWidget(QWidget):
 			if self.modes.currentText() == 'Maharajah':
 				self.mah_pos.show()
 				self.mah_text.show()
-				self.mah_color.show()
+				if self.two_player_radio.isChecked():
+					self.mah_color.show()
 			else:
 				self.mah_pos.hide()
 				self.mah_text.hide()
