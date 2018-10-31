@@ -284,14 +284,10 @@ class MenuWidget(QWidget):
 		verticalLayout.addLayout(horizontalLayout)
 
 		# to hide color choice if two players
-		def add_choice_clr(hide=True):
-			if hide: 
-				self.color_inf.hide()
-				self.change_color_btn.hide()
-			else: 
-				self.color_inf.show()
-				self.change_color_btn.show()
-		self.two_player_radio.toggled.connect(lambda:add_choice_clr(self.two_player_radio.isChecked()))
+		def hide_or_show_choice_clr():
+			self.color_inf.setHidden(not self.color_inf.isHidden())
+			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
+		self.two_player_radio.toggled.connect(lambda:hide_or_show_choice_clr())
 
 		# add special features
 		self.modes = QComboBox()
@@ -308,13 +304,10 @@ class MenuWidget(QWidget):
 
 	def start_game_mode(self):
 		# возвращает нужный объект - игру 
-		if self.chess:
-			self.chess.hide()
+		self.hide()
 
 		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
-		# self.hide()
 		self.chess = QtChess(game)
-		self.layout().addWidget(self.chess)
 
 
 if __name__ == '__main__':
