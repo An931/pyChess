@@ -5,9 +5,9 @@ import os
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
-from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath
+from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath, QPalette
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog, QCheckBox, QDialog,  QFrame, QHBoxLayout,
-	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QRadioButton, QComboBox, QWidget)
+	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QRadioButton, QToolButton, QComboBox, QWidget)
 
 from game import *
 from players import *
@@ -251,6 +251,7 @@ class QtChess(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
+		self.game = None
 		verticalLayout = QVBoxLayout()
 
 		self.one_player_radio = QRadioButton('one player')
@@ -260,6 +261,40 @@ class MenuWidget(QWidget):
 		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
 		verticalLayout.addWidget(self.one_player_radio)
 		verticalLayout.addWidget(self.two_player_radio)
+
+		# self.white_color_btn = QCheckBox('white color')
+		# self.white_color_btn.setChecked(True)
+		# self.black_color_btn = QCheckBox('black color')
+		# self.white_color_btn.setChecked()
+
+		horizontalLayout = QHBoxLayout()
+		self.color_inf = QFrame()
+		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		supported_frame = QFrame() # for other elements don't move when nhide
+
+		self.change_color_btn = QPushButton('change my color')
+		def change_clr():
+			if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
+				self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
+			else:
+				self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		self.change_color_btn.clicked.connect(change_clr)
+		# self.black_color_btn.clicked.connect()
+
+		horizontalLayout.addWidget(self.color_inf)
+		horizontalLayout.addWidget(self.change_color_btn)
+		horizontalLayout.addWidget(supported_frame)
+		verticalLayout.addLayout(horizontalLayout)
+
+		def add_choice_clr(hide=True):
+			if hide: 
+				self.color_inf.hide()
+				self.change_color_btn.hide()
+			else: 
+				self.color_inf.show()
+				self.change_color_btn.show()
+		self.two_player_radio.toggled.connect(lambda:add_choice_clr(self.two_player_radio.isChecked()))
+
 
 		# add special features
 		self.modes = QComboBox()
@@ -275,10 +310,12 @@ class MenuWidget(QWidget):
 
 	def start_game_mode(self):
 		# возвращает нужный объект - игру 
+		self.layout.removeWidget(self.game)
+
 		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
 		# self.hide()
-		chess = QtChess(game)
-		self.layout().addWidget(chess)
+		self.chess = QtChess(game)
+		self.layout().addWidget(self.chess)
 
 
 if __name__ == '__main__':
