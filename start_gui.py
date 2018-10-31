@@ -16,11 +16,11 @@ from QtCell import *
 from QtBoard import *
 
 
-class QtGame(QWidget):
+class QtChess(QWidget):
 	pass
 
 
-class QtGameWithComputer(QWidget):
+class QtGameWithComputer(QtChess):
 	def __init__(self, hum_color='white'):
 		super(QtGameWithComputer, self).__init__()
 
@@ -122,7 +122,7 @@ class QtGameWithComputer(QWidget):
 		self.game.save_session(ses_name)
 
 
-class QtGameHotSeat(QWidget):
+class QtGameHotSeat(QtChess):
 	def __init__(self):
 		super(QtGameHotSeat, self).__init__()
 		self.human_w = Player('white')
@@ -192,22 +192,16 @@ class QtGameHotSeat(QWidget):
 
 
 
-class QtChess(QWidget):
-	def __init__(self, game):
-		super(QtChess, self).__init__()
+class QtGame(QWidget):
+	def __init__(self, chess):
+		super(QtGame, self).__init__()
 
-		if not isinstance(game, QtGameWithComputer) and not isinstance(game, QtGameHotSeat):
+		if not isinstance(chess, QtGameWithComputer) and not isinstance(chess, QtGameHotSeat):
 			raise Exception()
 
-		self.game = game
-
-		# self.game = self.ask_game_mode()
-		# if not self.game:
-		# 	print(self.game)
-		# 	QApplication.quit()
-
+		self.chess = chess
 		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.game)
+		horizontalLayout.addWidget(self.chess)
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
@@ -224,24 +218,16 @@ class QtChess(QWidget):
 		self.show()
 
 
-	def ask_game_mode00(self):
-		modes = ['one player', 'two players']
-		mode, okPressed = QInputDialog.getItem(self, "", "Choose game mode:", modes, 0, False)
-		if okPressed and mode:
-			return QtGameWithComputer() if (mode == 'one player') else QtGameHotSeat()
-
-
-
 	def save_btn_func(self): 
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
 		if okPressed and text != '':
-			self.game.save_session(text)
+			self.chess.save_session(text)
 
 	def load_btn_func(self):
 		sessions = self.get_sessions_files()
 		ses_name, okPressed = QInputDialog.getItem(self, "Load session", "Saved session:", sessions, 0, False)
 		if okPressed and ses_name:
-			self.game.load_session(ses_name)
+			self.chess.load_session(ses_name)
 		
 	def get_sessions_files(self):
 		dirname = 'saved_sessions'
@@ -252,7 +238,6 @@ class QtChess(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
-		self.chess = None
 		verticalLayout = QVBoxLayout()
 
 		# choose one or two
@@ -308,7 +293,7 @@ class MenuWidget(QWidget):
 		self.hide()
 
 		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
-		self.chess = QtChess(game)
+		self.game = QtGame(game)
 
 
 if __name__ == '__main__':
