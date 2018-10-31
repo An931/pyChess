@@ -15,13 +15,42 @@ from QtCell import *
 from QtBoard import *
 
 
-class QtGame(QWidget):
-	pass
+class QtChess(QWidget):
+	def __init__(self):
+		super(QtChess, self).__init__()
+		self.game = LogicGame()
+		self.board = QtBoard(self)
+
+		self.setAcceptDrops(True)
+
+		self.setVisualBoard()
+		self.show()
+
+	def setVisualBoard(self):
+		horizontalLayout = QHBoxLayout()
+		horizontalLayout.addWidget(self.board)
+		self.setLayout(horizontalLayout)
+
+	def try_make_move(self, from_pos, to_pos):
+		pass
+
+	def message_over(self, msg):
+		buttonReply = QMessageBox.information(self, '', 'Game over\n'+msg, QMessageBox.Ok)
+		if buttonReply == QMessageBox.Ok:
+			# self.close()
+			QApplication.quit()
+
+	def load_session(self, ses_name='init'):
+		self.game.load_session(ses_name)
+		self.board.update()
+
+	def save_session(self, ses_name):
+		self.game.save_session(ses_name)
 
 
-class QtGameWithComputer(QWidget):
+class QtChessWithComputer(QtChess):
 	def __init__(self, hum_color='white'):
-		super(QtGameWithComputer, self).__init__()
+		super(QtChessWithComputer, self).__init__()
 
 		# hum_color = 'black'
 		# comp_color = 'white'
@@ -44,10 +73,6 @@ class QtGameWithComputer(QWidget):
 		self.setVisualBoard()
 		# self.show()
 
-	def setVisualBoard(self):
-		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.board)
-		self.setLayout(horizontalLayout)
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
@@ -108,39 +133,20 @@ class QtGameWithComputer(QWidget):
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
-		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
-		if buttonReply == QMessageBox.Ok:
-			# self.close()
-			QApplication.quit()
-
-	def load_session(self, ses_name='init'):
-		self.game.load_session(ses_name)
-		self.board.update()
-
-	def save_session(self, ses_name):
-		self.game.save_session(ses_name)
+		super().message_over(pers_message)
 
 
-class QtGameHotSeat(QWidget):
+
+class QtChessHotSeat(QtChess):
 	def __init__(self):
-		super(QtGameHotSeat, self).__init__()
+		super(QtChessHotSeat, self).__init__()
 		self.human_w = Player('white')
 		self.human_b = Player('black')
-		self.game = LogicGame()
-		self.board = QtBoard(self)
 
 		self.acting_player = self.human_w
 
 		self.setWindowTitle('HotSeat')
-		# self.setAcceptDrops(True)
 
-		self.setVisualBoard()
-		self.show()
-
-	def setVisualBoard(self):
-		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.board)
-		self.setLayout(horizontalLayout)
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
@@ -177,28 +183,20 @@ class QtGameHotSeat(QWidget):
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
-		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
-		if buttonReply == QMessageBox.Ok:
-			# self.close()
-			QApplication.quit()
-
-	def load_session(self, ses_name='init'):
-		self.game.load_session(ses_name)
-		self.board.update()
-
-	def save_session(self, ses_name):
-		self.game.save_session(ses_name)
+		msg = 'Game over\n'+pers_message
+		super().message_over(msg)
 
 
 
-class QtChess(QWidget):
-	def __init__(self, game):
-		super(QtChess, self).__init__()
 
-		if not isinstance(game, QtGameWithComputer) and not isinstance(game, QtGameHotSeat):
+class QtGame(QWidget):
+	def __init__(self, chess):
+		super(QtGame, self).__init__()
+
+		if not isinstance(chess, QtChessWithComputer) and not isinstance(chess, QtChessHotSeat):
 			raise Exception()
 
-		self.game = game
+		self.chess = chess
 
 		# self.game = self.ask_game_mode()
 		# if not self.game:
@@ -206,7 +204,7 @@ class QtChess(QWidget):
 		# 	QApplication.quit()
 
 		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.game)
+		horizontalLayout.addWidget(self.chess)
 
 		verticalLayout = QVBoxLayout()
 		save_ses_btn = QPushButton('save', self)
@@ -251,7 +249,6 @@ class QtChess(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
-		self.chess = None
 		verticalLayout = QVBoxLayout()
 
 		# choose one or two
@@ -306,14 +303,14 @@ class MenuWidget(QWidget):
 		# возвращает нужный объект - игру 
 		self.hide()
 
-		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
-		self.chess = QtChess(game)
+		chess = QtChessWithComputer() if (self.one_player_radio.isChecked()) else QtChessHotSeat()
+		self.game = QtGame(chess)
 
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	# game = QtGameWithComputer()
-	# game = QtGameHotSeat()
+	# game = QtChessWithComputer()
+	# game = QtChessHotSeat()
 	# chess = QtChess()
 	wind = MenuWidget()
 	sys.exit(app.exec_())
