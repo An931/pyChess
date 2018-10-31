@@ -55,10 +55,8 @@ class QtGameWithComputer(QtChess):
 		self.comp = Computer(self.game, comp_color)
 
 		self.acting_player = self.human if hum_color == 'white' else self.comp
-		# self.acting_player = self.human
 
 		self.setWindowTitle('ChessWithComputer')
-		# self.setAcceptDrops(True)
 		self.setVisualBoard()
 		self.show()
 
@@ -69,9 +67,6 @@ class QtGameWithComputer(QtChess):
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
 			raise GameOverError
-
-		# if self.acting_player != self.human:
-		# 	return
 
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
@@ -119,7 +114,6 @@ class QtGameWithComputer(QtChess):
 
 			# from_cell.del_piece()
 			self.board.animate_move(from_pos, to_pos)
-			# self.board.update() # это в методе доски
 
 		if self.game.over:
 			self.message_over()
@@ -249,6 +243,7 @@ class MenuWidget(QWidget):
 		horizontalLayout = QHBoxLayout()
 		self.color_inf = QFrame()
 		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		self.color_inf.setMaximumSize(30, 30)
 		supported_frame = QFrame() # for other elements don't move when hide
 
 		self.change_color_btn = QPushButton('change my color')
@@ -259,10 +254,10 @@ class MenuWidget(QWidget):
 				self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
 		self.change_color_btn.clicked.connect(change_clr)
 		# self.black_color_btn.clicked.connect()
-
 		horizontalLayout.addWidget(self.color_inf)
 		horizontalLayout.addWidget(self.change_color_btn)
 		horizontalLayout.addWidget(supported_frame)
+
 		verticalLayout.addLayout(horizontalLayout)
 
 		# to hide color choice if two players
@@ -276,12 +271,30 @@ class MenuWidget(QWidget):
 		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
 		verticalLayout.addWidget(self.modes)
 
+		horizontalLayout = QHBoxLayout()
+		self.mah_pos = QComboBox()
+		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
+		supported_frame = QFrame()
+		text = QLineEdit('Chose Maharajah position')
+		horizontalLayout.addWidget(self.mah_pos)
+		horizontalLayout.addWidget(supported_frame)
+		horizontalLayout.addWidget(text)
+		verticalLayout.addLayout(horizontalLayout)
+
+		# to hide choose maharajah position
+		def hide_or_show_choose_mah_pos():
+			self.color_inf.setHidden(not self.color_inf.isHidden())
+			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
+		# self.two_player_radio.toggled.connect(lambda:hide_or_show_choose_mah_pos())
+
+
 		# start button
 		self.start_btn = QPushButton('Start')
 		self.start_btn.clicked.connect(self.start_game_mode)
 		verticalLayout.addWidget(self.start_btn)
 
 		self.setLayout(verticalLayout)
+		self.setMinimumSize(400, 300)
 		self.show()
 
 	def start_game_mode(self):
