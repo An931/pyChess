@@ -245,7 +245,7 @@ class MenuWidget(QWidget):
 		# combo box --currentText()
 
 		if self.one_player_radio.isChecked():
-			hum_color = 'white' if (self.color_inf.palette().color(QPalette.Background).name() == '#ffffff') else 'black'
+			hum_color = 'white' if (self.change_color_btn.palette().color(QPalette.Background).name() == '#ffffff') else 'black'
 			game = QtGameWithComputer(hum_color)
 		else:
 			game = QtGameHotSeat()
@@ -264,20 +264,24 @@ class MenuWidget(QWidget):
 
 	def add_change_color(self):
 		horizontalLayout = QHBoxLayout()
-		self.color_inf = QFrame()
-		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-		self.color_inf.setMaximumSize(30, 30)
+		# self.color_inf = QPushButton()
+		# self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+		# self.color_inf.setMaximumSize(30, 30)
 		supported_frame = QFrame() # for other elements don't move when hide
 
-		self.change_color_btn = QPushButton('change my color')
+		self.change_color_btn = QPushButton()
+		self.change_color_btn.setText('white')
+		# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
 		def change_clr():
-			if self.color_inf.palette().color(QPalette.Background).name() == '#ffffff':
-				self.color_inf.setStyleSheet('border: 1px solid black; background-color:black;')
+			if self.change_color_btn.text() == 'white':
+				self.change_color_btn.setText('black')
+				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:black;')
 			else:
-				self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
+				self.change_color_btn.setText('white')
+				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
 		self.change_color_btn.clicked.connect(change_clr)
-		# self.black_color_btn.clicked.connect()
-		horizontalLayout.addWidget(self.color_inf)
+		self.change_color_text = QLabel('Choose your color')
+		horizontalLayout.addWidget(self.change_color_text)
 		horizontalLayout.addWidget(self.change_color_btn)
 		horizontalLayout.addWidget(supported_frame)
 
@@ -287,8 +291,8 @@ class MenuWidget(QWidget):
 
 	def add_hide_color_choice(self):
 		def hide_or_show_choice_clr():
-			self.color_inf.setHidden(not self.color_inf.isHidden())
 			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
+			self.change_color_text.setHidden(not self.change_color_text.isHidden())
 		self.two_player_radio.toggled.connect(hide_or_show_choice_clr)
 
 	def add_modes(self):
@@ -298,18 +302,30 @@ class MenuWidget(QWidget):
 		self.verticalLayout.addWidget(self.modes)
 
 	def add_choice_mah_position(self):
+		def change_clr():
+			if self.mah_color.text() == 'white':
+				self.mah_color.setText('black')
+				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:black;')
+			else:
+				self.mah_color.setText('white')
+				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
+		
 		horizontalLayout = QHBoxLayout()
 		self.mah_pos = QComboBox()
 		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
+		self.mah_color = QPushButton('white')
+		self.mah_color.clicked.connect(change_clr)
 		supported_frame = QFrame()
-		self.mah_text = QLabel('Chose Maharajah position')
-		horizontalLayout.addWidget(self.mah_pos)
-		horizontalLayout.addWidget(supported_frame)
+		self.mah_text = QLabel('Chose Maharajah position and color')
 		horizontalLayout.addWidget(self.mah_text)
+		horizontalLayout.addWidget(self.mah_pos)
+		horizontalLayout.addWidget(self.mah_color)
+		horizontalLayout.addWidget(supported_frame)
 		self.verticalLayout.addLayout(horizontalLayout)
 
 		self.mah_pos.hide()
 		self.mah_text.hide()
+		self.mah_color.hide()
 		self.add_hide_mah_choice()
 
 
@@ -319,9 +335,11 @@ class MenuWidget(QWidget):
 			if self.modes.currentText() == 'Maharajah':
 				self.mah_pos.show()
 				self.mah_text.show()
+				self.mah_color.show()
 			else:
 				self.mah_pos.hide()
 				self.mah_text.hide()
+				self.mah_color.hide()
 		self.modes.currentIndexChanged.connect(hide_or_show_choose_mah_pos)
 
 
