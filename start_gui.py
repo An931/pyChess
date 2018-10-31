@@ -17,7 +17,30 @@ from QtBoard import *
 
 
 class QtChess(QWidget):
-	pass
+	def __init__(self):
+		super(QtChess, self).__init__()
+
+
+	def setVisualBoard(self):
+		horizontalLayout = QHBoxLayout()
+		horizontalLayout.addWidget(self.board)
+		self.setLayout(horizontalLayout)
+
+	def try_make_move(self, from_pos, to_pos):
+		pass
+
+	def message_over(self, msg):
+		buttonReply = QMessageBox.information(self, '', 'Game over\n'+msg, QMessageBox.Ok)
+		if buttonReply == QMessageBox.Ok:
+			# self.close()
+			QApplication.quit()
+
+	def load_session(self, ses_name='init'):
+		self.game.load_session(ses_name)
+		self.board.update()
+
+	def save_session(self, ses_name):
+		self.game.save_session(ses_name)
 
 
 class QtGameWithComputer(QtChess):
@@ -41,9 +64,8 @@ class QtGameWithComputer(QtChess):
 
 		self.setWindowTitle('ChessWithComputer')
 		# self.setAcceptDrops(True)
-
 		self.setVisualBoard()
-		# self.show()
+		self.show()
 
 	def setVisualBoard(self):
 		horizontalLayout = QHBoxLayout()
@@ -109,17 +131,8 @@ class QtGameWithComputer(QtChess):
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
-		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
-		if buttonReply == QMessageBox.Ok:
-			# self.close()
-			QApplication.quit()
+		super().message_over(pers_message)
 
-	def load_session(self, ses_name='init'):
-		self.game.load_session(ses_name)
-		self.board.update()
-
-	def save_session(self, ses_name):
-		self.game.save_session(ses_name)
 
 
 class QtGameHotSeat(QtChess):
@@ -134,7 +147,6 @@ class QtGameHotSeat(QtChess):
 
 		self.setWindowTitle('HotSeat')
 		# self.setAcceptDrops(True)
-
 		self.setVisualBoard()
 		self.show()
 
@@ -178,17 +190,8 @@ class QtGameHotSeat(QtChess):
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
-		buttonReply = QMessageBox.information(self, '', 'Game over\n'+pers_message, QMessageBox.Ok)
-		if buttonReply == QMessageBox.Ok:
-			# self.close()
-			QApplication.quit()
+		super.message_over(pers_message)
 
-	def load_session(self, ses_name='init'):
-		self.game.load_session(ses_name)
-		self.board.update()
-
-	def save_session(self, ses_name):
-		self.game.save_session(ses_name)
 
 
 
