@@ -46,8 +46,7 @@ class QtGameWithComputer(QtChess):
 	def __init__(self, hum_color='white'):
 		super(QtGameWithComputer, self).__init__()
 
-		hum_color = 'white'
-		comp_color = 'black'
+		comp_color = 'black' if hum_color == 'white' else 'white'
 
 		self.game = LogicGame(t_clor=comp_color, b_color=hum_color)
 		self.board = QtBoard(self)
@@ -55,20 +54,24 @@ class QtGameWithComputer(QtChess):
 		self.human = Player(hum_color)
 		self.comp = Computer(self.game, comp_color)
 
-		# self.acting_player = self.human if hum_color == 'white' else self.comp
-		self.acting_player = self.human
+		self.acting_player = self.human if hum_color == 'white' else self.comp
+		# self.acting_player = self.human
 
 		self.setWindowTitle('ChessWithComputer')
 		# self.setAcceptDrops(True)
 		self.setVisualBoard()
 		self.show()
 
-		# if 
+		if self.acting_player == self.comp:
+			self.make_comp_move()
 
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
 			raise GameOverError
+
+		# if self.acting_player != self.human:
+		# 	return
 
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
@@ -91,7 +94,7 @@ class QtGameWithComputer(QtChess):
 			self.message_over()
 			return
 
-		# self.acting_player = self.comp
+		self.acting_player = self.comp
 		self.make_comp_move()
 
 	def make_comp_move(self):
@@ -121,7 +124,7 @@ class QtGameWithComputer(QtChess):
 		if self.game.over:
 			self.message_over()
 
-		# self.acting_player = self.human_w
+		self.acting_player = self.human
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
@@ -282,10 +285,15 @@ class MenuWidget(QWidget):
 		self.show()
 
 	def start_game_mode(self):
-		# возвращает нужный объект - игру 
+		# создает (начинает) нужный объект - игру 
 		self.hide()
 
-		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
+		if self.one_player_radio.isChecked():
+			hum_color = 'white' if (self.color_inf.palette().color(QPalette.Background).name() == '#ffffff') else 'black'
+			game = QtGameWithComputer(hum_color)
+		else:
+			game = QtGameHotSeat()
+
 		self.game = QtGame(game)
 
 
