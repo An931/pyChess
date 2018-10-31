@@ -251,9 +251,10 @@ class QtChess(QWidget):
 class MenuWidget(QWidget):
 	def __init__(self):
 		super(MenuWidget, self).__init__()
-		self.game = None
+		self.chess = None
 		verticalLayout = QVBoxLayout()
 
+		# choose one or two
 		self.one_player_radio = QRadioButton('one player')
 		self.one_player_radio.setChecked(True)
 		self.two_player_radio = QRadioButton('two player')
@@ -262,15 +263,11 @@ class MenuWidget(QWidget):
 		verticalLayout.addWidget(self.one_player_radio)
 		verticalLayout.addWidget(self.two_player_radio)
 
-		# self.white_color_btn = QCheckBox('white color')
-		# self.white_color_btn.setChecked(True)
-		# self.black_color_btn = QCheckBox('black color')
-		# self.white_color_btn.setChecked()
-
+		# set color (if play with computer)
 		horizontalLayout = QHBoxLayout()
 		self.color_inf = QFrame()
 		self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-		supported_frame = QFrame() # for other elements don't move when nhide
+		supported_frame = QFrame() # for other elements don't move when hide
 
 		self.change_color_btn = QPushButton('change my color')
 		def change_clr():
@@ -286,6 +283,7 @@ class MenuWidget(QWidget):
 		horizontalLayout.addWidget(supported_frame)
 		verticalLayout.addLayout(horizontalLayout)
 
+		# to hide color choice if two players
 		def add_choice_clr(hide=True):
 			if hide: 
 				self.color_inf.hide()
@@ -295,12 +293,12 @@ class MenuWidget(QWidget):
 				self.change_color_btn.show()
 		self.two_player_radio.toggled.connect(lambda:add_choice_clr(self.two_player_radio.isChecked()))
 
-
 		# add special features
 		self.modes = QComboBox()
 		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
 		verticalLayout.addWidget(self.modes)
 
+		# start button
 		self.start_btn = QPushButton('Start')
 		self.start_btn.clicked.connect(self.start_game_mode)
 		verticalLayout.addWidget(self.start_btn)
@@ -310,7 +308,8 @@ class MenuWidget(QWidget):
 
 	def start_game_mode(self):
 		# возвращает нужный объект - игру 
-		self.layout.removeWidget(self.game)
+		if self.chess:
+			self.chess.hide()
 
 		game = QtGameWithComputer() if (self.one_player_radio.isChecked()) else QtGameHotSeat()
 		# self.hide()
