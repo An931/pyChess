@@ -62,3 +62,7 @@ self.board['h5'] = ""
 self.board['h6'] = ""
 self.board['h7'] = Pawn("black", "down")
 self.board['h8'] = Rook("black")
+self.t_color='black'
+self.b_color='white'
+self.history=[]
+self.last_from_poses=collections.deque([], maxlen=5)

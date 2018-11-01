@@ -59,12 +59,12 @@ class Computer:
 	def get_movments_of_piece(self, cell_id): 
 		"""возвращает все возможные ходы данной фигуры"""
 		piece = self.board[cell_id]
-		empty, enemy = self.get_empty_or_enemy_cells()
-		all_to_pos = empty + enemy
-		moves = [to_pos for to_pos in all_to_pos if self.game.is_correct_move(cell_id, to_pos)]
+		# empty, enemy = self.get_empty_or_enemy_cells()
+		# all_to_pos = empty + enemy
+		moves = [to_pos for to_pos in self.game.board if self.game.is_correct_move(cell_id, to_pos)]
 		return moves
 
-	def get_empty_or_enemy_cells(self):
+	def get_empty_or_enemy_cells00(self):
 		""" возвр тапл списков: все пустые и все клетки противника"""
 		empty = []
 		enemy = []
