@@ -13,13 +13,14 @@ class LogicGame:
 		else:
 			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 
-			self.t_color = t_color
-			self.b_color = b_color
+		self.t_color = t_color
+		self.b_color = b_color
 
 		self.over = False
 		self.win_color = None
 
-		self.history = [] # (from_pos. to_pos, piece)
+		# self.history = [] # (from_pos. to_pos, piece=(color, type))
+		self.history = [] # (from_pos. to_pos)
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
@@ -67,7 +68,7 @@ class LogicGame:
 		if not act_piece.already_moved:
 			act_piece.already_moved = True
 
-		self.history.append((from_pos, to_pos, act_piece))
+		self.history.append((from_pos, to_pos))
 		# if act_piece.radioactive:
 		# 	self.radioactive_cells.append(from_pos)
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
@@ -106,16 +107,32 @@ class LogicGame:
 
 
 	def save_session(self, ses_name):
-		filename = 'saved_sessions/{}.txt'.format(ses_name)
+		def get_history_str000():
+			l=[]
+			for el in self.history:
+				l.append((el[0], el[1], el[2].color, type(el[2]).__name__))
+			return l 
 
+		filename = 'saved_sessions/{}.txt'.format(ses_name)
 		with open(filename, 'w+') as f:
 			for cell in self.board:
 				piece = self.board[cell]
-				if (isinstance(piece, Pawn)):
-					str_format_piece = '{}("{}", "{}")'.format(type(piece).__name__, piece.color, piece.direction) if piece else '""'
+				if isinstance(piece, Pawn):
+					str_format_piece = '{}("{}", "{}")'.format(type(piece).__name__, piece.color, piece.direction)
+				elif isinstance(piece, Knight) and piece.radioactive:
+					str_format_piece = '{}("{}", "{}")'.format(type(piece).__name__, piece.color, piece.radioactive)
 				else:
 					str_format_piece = '{}("{}")'.format(type(piece).__name__, piece.color) if piece else '""'
 				f.write("self.board['{}'] = {}\n".format(cell, str_format_piece))
+
+			f.write("self.t_color='{}'\n".format(self.t_color))
+			f.write("self.b_color='{}'\n".format(self.b_color))
+			f.write("self.history={}\n".format(self.history))
+			# print(deque) -> deque([1,2,3], maxlen=2); deque = collections.deque([7, 8, 9], maxlen=2)
+			# deque_str = str(self.last_from_poses)[:-1] + ', maxlen={})'.format(self.last_from_poses.maxlen)
+			f.write("self.last_from_poses=collections.{}\n".format(self.last_from_poses)) 
+
+# self.last_from_poses = collections.deque(maxlen=5)
 
 
 	def load_session(self, ses_name):

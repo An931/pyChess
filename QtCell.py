@@ -21,7 +21,7 @@ class QtCell(QFrame):
 		self.game = qtgame
 		self.set_сolor()
 
-		self.setToolTip('cell')
+		self.setToolTip('cell {}'.format(self.id))
 
 		self.setMinimumSize(50, 50)
 		self.setLineWidth(10)

@@ -251,7 +251,7 @@ class MenuWidget(QWidget):
 		# play with computer
 		if self.one_player_radio.isChecked(): 
 			hum_color = self.change_color_btn.text()
-			if self.modes.currentText() == 'With radioactive knights':
+			if self.modes.currentText() == 'Radioactive knights':
 				game = QtGameWithComputer(hum_color, radioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
@@ -261,7 +261,7 @@ class MenuWidget(QWidget):
 				game = QtGameWithComputer(hum_color)
 
 		else:
-			if self.modes.currentText() == 'With radioactive knights':
+			if self.modes.currentText() == 'Radioactive knights':
 				game = QtGameHotSeat(radioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
@@ -313,7 +313,7 @@ class MenuWidget(QWidget):
 	def add_modes(self):
 		# add special features
 		self.modes = QComboBox()
-		self.modes.addItems(['Classic mode', 'With radioactive knights', 'Maharajah'])
+		self.modes.addItems(['Classic mode', 'Radioactive knights', 'Maharajah'])
 		self.verticalLayout.addWidget(self.modes)
 
 	def add_choice_mah_position(self):
