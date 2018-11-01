@@ -13,15 +13,16 @@ class LogicGame:
 		else:
 			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 
+			self.t_color = t_color
+			self.b_color = b_color
+
 		self.over = False
 		self.win_color = None
 
 		self.history = [] # (from_pos. to_pos, piece)
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
-		self.last_from_poses = collections.deque(maxlen=6) #tuple (from_pos, is_radio(True/False))
-
-		# self.last_moved = { 'white':'', 'black':'' } #  2 to_positions
+		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
 
 
 	def make_move(self, from_pos, to_pos, ):
@@ -66,7 +67,7 @@ class LogicGame:
 		if not act_piece.already_moved:
 			act_piece.already_moved = True
 
-		# self.history.append((from_pos, to_pos, act_piece))
+		self.history.append((from_pos, to_pos, act_piece))
 		# if act_piece.radioactive:
 		# 	self.radioactive_cells.append(from_pos)
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
@@ -134,18 +135,25 @@ class LogicGame:
 			return False
 		if not piece.can_capture(from_pos, to_pos):
 			return False
-		if piece.color == 'white' and from_pos[1] != '5' or\
-				piece.color == 'black' and from_pos[1] != '4':
+		if piece.color == self.b_color and from_pos[1] != '5' or\
+				piece.color == self.t_color and from_pos[1] != '4':
 				return False
 		enemy_pawn_place = to_pos[0] + from_pos[1]
 		if not isinstance(self.board[enemy_pawn_place], Pawn) or self.board[enemy_pawn_place].color == piece.color:
 			return False
-		if self.history[-1][1] != enemy_pawn_place:
-			return False
-		for moves in self.history:
-			if moves[1] == enemy_pawn_place and moves[2] == self.board[enemy_pawn_place]:
-				return False
-		return True
+		# if self.history[-1][1] != enemy_pawn_place:
+		# 	return False
+		# for moves in self.history:
+		# 	if moves[1] == enemy_pawn_place and moves[2] == self.board[enemy_pawn_place]:
+		# 		return False
+		# return True
+		if piece.color == self.t_color:
+			this_pawn_init_pos = enemy_pawn_place[0]+'2'
+		else:
+			this_pawn_init_pos = enemy_pawn_place[0]+'7'
+		if self.history[-1][0] == this_pawn_init_pos and self.history[-1][1] == enemy_pawn_place:
+			return True
+		return False
 
 	def make_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
