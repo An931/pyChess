@@ -125,7 +125,6 @@ class QtGameWithComputer(QtChess):
 		super().message_over(pers_message)
 
 
-
 class QtGameHotSeat(QtChess):
 	def __init__(self, radioactive=False, maharajah=False):
 		super(QtGameHotSeat, self).__init__()
@@ -181,8 +180,6 @@ class QtGameHotSeat(QtChess):
 		super().message_over(pers_message)
 
 
-
-
 class QtGame(QWidget):
 	def __init__(self, chess):
 		super(QtGame, self).__init__()
@@ -191,17 +188,23 @@ class QtGame(QWidget):
 			raise Exception()
 
 		self.chess = chess
-		horizontalLayout = QHBoxLayout()
-		horizontalLayout.addWidget(self.chess)
-
-		verticalLayout = QVBoxLayout()
+		self.in_check_msg = QLabel('Here would be msg\n if King is in check')
 		save_ses_btn = QPushButton('save', self)
 		save_ses_btn.clicked.connect(self.save_btn_func)
-		verticalLayout.addWidget(save_ses_btn)
 		load_ses_btn = QPushButton('load', self)
 		load_ses_btn.clicked.connect(self.load_btn_func)
-		verticalLayout.addWidget(load_ses_btn)
+		# save_ses_btn.setMaximumSize(50, 10)
+		# load_ses_btn.setMaximumSize(50, 10)
 
+
+		horizontalLayout = QHBoxLayout()
+		verticalLayout = QVBoxLayout()
+
+		verticalLayout.addWidget(load_ses_btn)
+		verticalLayout.addWidget(save_ses_btn)
+		verticalLayout.addWidget(self.in_check_msg)
+
+		horizontalLayout.addWidget(self.chess)
 		horizontalLayout.addLayout(verticalLayout)
 
 		self.setLayout(horizontalLayout)
@@ -269,7 +272,6 @@ class MenuWidget(QWidget):
 
 		self.game = QtGame(game)
 
-
 	def add_player_count_radio(self):
 		self.one_player_radio = QRadioButton('One player (play with Computer)')
 		self.one_player_radio.setChecked(True)
@@ -281,14 +283,11 @@ class MenuWidget(QWidget):
 
 	def add_change_color(self):
 		horizontalLayout = QHBoxLayout()
-		# self.color_inf = QPushButton()
-		# self.color_inf.setStyleSheet('border: 1px solid black; background-color:white;')
-		# self.color_inf.setMaximumSize(30, 30)
 		supported_frame = QFrame() # for other elements don't move when hide
 
 		self.change_color_btn = QPushButton()
 		self.change_color_btn.setText('white')
-		# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
+		self.change_color_btn.setToolTip('Click to change your color')
 		def change_clr():
 			if self.change_color_btn.text() == 'white':
 				self.change_color_btn.setText('black')
@@ -297,13 +296,12 @@ class MenuWidget(QWidget):
 				self.change_color_btn.setText('white')
 				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
 		self.change_color_btn.clicked.connect(change_clr)
-		self.change_color_text = QLabel('Choose your color')
+		self.change_color_text = QLabel('Your color:   ')
 		horizontalLayout.addWidget(self.change_color_text)
 		horizontalLayout.addWidget(self.change_color_btn)
 		horizontalLayout.addWidget(supported_frame)
 
 		self.verticalLayout.addLayout(horizontalLayout)
-
 		self.add_hide_color_choice()
 
 	def add_hide_color_choice(self):
@@ -329,14 +327,15 @@ class MenuWidget(QWidget):
 				self.mah_color.setText('white')
 				self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
 				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
-		
 		horizontalLayout = QHBoxLayout()
 		self.mah_pos = QComboBox()
 		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
 		self.mah_color = QPushButton('white')
 		self.mah_color.clicked.connect(change_clr)
+		self.mah_color.setToolTip('Click to change Maharajah color')
+		self.mah_pos.setToolTip('Choose Maharajah first position')
 		supported_frame = QFrame()
-		self.mah_text = QLabel('Chose Maharajah position and color')
+		self.mah_text = QLabel('Maharajah position and color:   ')
 		horizontalLayout.addWidget(self.mah_text)
 		horizontalLayout.addWidget(self.mah_pos)
 		horizontalLayout.addWidget(self.mah_color)
