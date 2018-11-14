@@ -1,4 +1,5 @@
 import random 
+import copy
 from pieces import *
 # from game import *
 
@@ -23,9 +24,9 @@ class Computer:
 		# return self.get_random_movement()
 
 		move = self.get_sorted_movements()[0]
-		if not self.board[move[1]] and not self.game.is_enpassant(*move):
-			# чтобы ходы в начале игры не были одинаковыми 
-			return self.get_random_movement()
+		# if not self.board[move[1]] and not self.game.is_enpassant(*move):
+		# 	# чтобы ходы в начале игры не были одинаковыми 
+		# 	return self.get_random_movement()
 		return move
 
 	def get_random_movement(self):
@@ -42,7 +43,9 @@ class Computer:
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
-				moves.append(Move(from_pos, to_pos, self.board))
+				if not self.will_be_mate(from_pos, to_pos):
+					moves.append(Move(from_pos, to_pos, self.board))
+				# moves.append(Move(from_pos, to_pos, self.board))
 		moves.sort(key=lambda x: x.benefit, reverse=True)
 		return [(m.from_pos, m.to_pos) for m in moves]
 
@@ -75,6 +78,16 @@ class Computer:
 			elif piece.color != self.color:
 				enemy.append(c)
 		return (empty, enemy)
+
+	def will_be_mate(self, from_pos, to_pos):
+		# return False
+		if not self.game.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
+			return False
+		game = self.game.get_pseudo_game()
+		game.make_move(from_pos, to_pos)
+		if game.is_in_check(self.color):
+			return True
+		return False
 
 
 

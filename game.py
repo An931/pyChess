@@ -2,6 +2,7 @@
 from pieces import *
 from players import *
 import collections
+import copy
 
 
 class LogicGame:
@@ -315,6 +316,13 @@ class LogicGame:
 				enemy.append(c)
 		return (empty, enemy)
 
+	def get_pseudo_game(self):
+		new_game = LogicGame(self.t_color, self.b_color)
+		new_game.board = copy.deepcopy(self.board)
+		new_game.board['a2'] = Knight('white')
+		print(new_game.board)
+		print(self.board)
+		return new_game
 
 class GameOverError(BaseException):
 	pass
