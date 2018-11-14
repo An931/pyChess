@@ -245,8 +245,8 @@ class MenuWidget(QWidget):
 				game = QtGameWithComputer(hum_color, radioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
-				mah_color = self.change_color_btn.text() # при игре с компом цвет Магараджи совпадает с цветом игрока
-				print(mah_color)
+				# mah_color = self.change_color_btn.text() # при игре с компом цвет Магараджи совпадает с цветом игрока
+				mah_color = self.mah_color.text()
 				game = QtGameWithComputer(hum_color, maharajah=(mah_color, mah_pos))
 			else:
 				game = QtGameWithComputer(hum_color)
@@ -286,7 +286,8 @@ class MenuWidget(QWidget):
 			else:
 				self.change_color_btn.setText('white')
 				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
-		self.change_color_btn.clicked.connect(change_clr)
+		self.change_color_btn.clicked.connect(lambda: (change_clr(), self.change_mah_clr()))
+		# self.change_color_btn.clicked.connect(change_clr)
 		self.change_color_text = QLabel('Your color:   ')
 		horizontalLayout.addWidget(self.change_color_text)
 		horizontalLayout.addWidget(self.change_color_btn)
@@ -307,22 +308,24 @@ class MenuWidget(QWidget):
 		self.modes.addItems(['Classic mode', 'Radioactive knights', 'Maharajah'])
 		self.verticalLayout.addWidget(self.modes)
 
+
+	def change_mah_clr(self):
+		self.mah_pos.clear()
+		mah_color = 'white' if self.mah_color.text() == 'black' else 'black'
+		self.mah_color.setText(mah_color)
+		if self.mah_color.text() == self.change_color_btn.text():
+			self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
+		else:
+			self.mah_pos.addItems(['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7', 'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'])
+			# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
+
 	def add_choice_mah_position(self):
-		def change_clr():
-			self.mah_pos.clear()
-			if self.mah_color.text() == 'white':
-				self.mah_color.setText('black')
-				self.mah_pos.addItems(['a7', 'b7', 'c7', 'd7', 'e7', 'f7', 'g7', 'h7', 'a8', 'b8', 'c8', 'd8', 'e8', 'f8', 'g8', 'h8'])
-				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:black;')
-			else:
-				self.mah_color.setText('white')
-				self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
-				# self.change_color_btn.setStyleSheet('border: 1px solid black; background-color:white;')
+
 		horizontalLayout = QHBoxLayout()
 		self.mah_pos = QComboBox()
 		self.mah_pos.addItems(['a1', 'b1', 'c1', 'd1', 'e1', 'f1', 'g1', 'h1', 'a2', 'b2', 'c2', 'd2', 'e2', 'f2', 'g2', 'h2'])
-		self.mah_color = QPushButton('white')
-		self.mah_color.clicked.connect(change_clr)
+		self.mah_color = QPushButton(self.change_color_btn.text()) # depend of radiobut
+		self.mah_color.clicked.connect(self.change_mah_clr)
 		self.mah_color.setToolTip('Click to change Maharajah color')
 		self.mah_pos.setToolTip('Choose Maharajah first position')
 		supported_frame = QFrame()
