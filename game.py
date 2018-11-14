@@ -76,6 +76,8 @@ class LogicGame:
 		# if act_piece.radioactive:
 		# 	self.radioactive_cells.append(from_pos)
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
+		self.is_in_check('white')
+		self.is_in_check('black')
 
 	def is_correct_move(self, from_pos, to_pos):
 		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
@@ -192,7 +194,6 @@ class LogicGame:
 
 
 	def is_custeling(self, from_pos, to_pos):
-		print(from_pos, to_pos)
 		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
 			return False
 		if not isinstance(self.board[from_pos], King) or \
@@ -202,7 +203,7 @@ class LogicGame:
 			return False
 		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
 			return False
-		print('True')
+		# print('custelling')
 		return True
 
 	def is_barrier_on_pathway(self, from_pos, to_pos):
@@ -257,13 +258,17 @@ class LogicGame:
 		return []
 
 	def is_in_check(self, king_color):
+		king_pos = None # на случай если вызывается, когда короля нет на поле 
 		for pos in self.board:
 			if self.board[pos] and self.board[pos].color == king_color and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
 				king_pos = pos
-				continue
+				break
 		enemy_color = 'white' if (king_color == 'black') else 'black'
 		moves = self.get_sorted_movements(enemy_color)
+		if not king_pos:
+			return
 		if moves[0][1] == king_pos:
+			print('ISINCHEEK '+king_color)
 			return True
 		return False
 

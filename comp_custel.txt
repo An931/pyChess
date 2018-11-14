@@ -16,4 +16,5 @@ board['h6'] = ""
 board['h7'] = Pawn("black", "down")
 board['h8'] = Rook("black")
 board['e8'] = King("black")
+board['e1'] = King("white")
 
