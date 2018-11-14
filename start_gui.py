@@ -14,7 +14,7 @@ from game import *
 from players import *
 from QtCell import *
 from QtBoard import *
-
+from saver import *
 
 class QtChess(QWidget):
 	def __init__(self):
@@ -34,11 +34,17 @@ class QtChess(QWidget):
 			# self.close()
 			QApplication.quit()
 
-	def load_session(self, ses_name='init'):
+	def load_session(self, ses_name):
+		pass
+
+	def save_session(self, ses_name):
+		Saver.save_session(ses_name, self.game)
+
+	def load_session00(self, ses_name='init'):
 		self.game.load_session(ses_name)
 		self.board.update()
 
-	def save_session(self, ses_name):
+	def save_session000(self, ses_name):
 		self.game.save_session(ses_name)
 
 
@@ -114,6 +120,24 @@ class QtGameWithComputer(QtChess):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
 		super().message_over(pers_message)
 
+	def load_session(self, ses_name):
+		# self.game.board = None
+		game = Saver.load_session(ses_name)
+		self.game = game
+		self.comp.game = game
+		self.board.game = game
+		# print(self.game.board)
+		self.human = Player(game.b_color)
+		self.comp = Computer(self.game, game.t_color)
+
+		# мб не нужно, так как комп всегда успеет сходить 
+		last_act_color = game.board[game.history[-1][1]].color
+		self.acting_player = self.human if self.comp.color == last_act_color else self.comp
+		# self.acting_player = self.human if self. == 'white' else self.comp
+		self.board.update()
+		if self.acting_player == self.comp:
+			self.make_comp_move()
+
 
 class QtGameHotSeat(QtChess):
 	def __init__(self, radioactive=False, maharajah=False):
@@ -169,6 +193,18 @@ class QtGameHotSeat(QtChess):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
 		super().message_over(pers_message)
 
+	def load_session(self, ses_name):
+		# self.game.board = None
+		game = Saver.load_session(ses_name)
+		self.game = game
+		self.board.game = game
+		# print(self.game.board)
+
+		last_act_color = game.board[game.history[-1][1]].color
+		self.acting_player = self.human_w if last_act_color == 'black' else self.human_b
+		# self.acting_player = self.human if self. == 'white' else self.comp
+		self.board.update()
+
 
 class QtGame(QWidget):
 	def __init__(self, chess):
@@ -214,10 +250,14 @@ class QtGame(QWidget):
 			self.chess.load_session(ses_name)
 		
 	def get_sessions_files(self):
+		dirname = 'sessions'
+		files = os.listdir(dirname)
+		return [filename[:-7] for filename in files]
+
+	def get_sessions_files00(self):
 		dirname = 'saved_sessions'
 		files = os.listdir(dirname)
 		return [filename[:-4] for filename in files]
-
 
 class MenuWidget(QWidget):
 	def __init__(self):

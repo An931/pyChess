@@ -7,7 +7,7 @@ import collections
 class LogicGame:
 	# def __init__(self, t_clor='black', b_color='white'): 
 	def __init__(self, t_color, b_color, radioactive=False, maharajah = False):
-		# костыльненько - Maharajah либо False либо (цвет и позиция)
+		# костыльненько - Maharajah либо False либо (цвет и (позиция))
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
@@ -18,9 +18,10 @@ class LogicGame:
 
 		self.over = False
 		self.win_color = None
+		self.is_in_check_color = None
 
 		# self.history = [] # (from_pos. to_pos, piece=(color, type))
-		self.history = [] # (from_pos. to_pos)
+		self.history = [] # (from_pos, to_pos)
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
@@ -106,7 +107,7 @@ class LogicGame:
 		return False
 
 
-	def save_session(self, ses_name):
+	def save_session00(self, ses_name):
 		def get_history_str000():
 			l=[]
 			for el in self.history:
@@ -135,7 +136,7 @@ class LogicGame:
 # self.last_from_poses = collections.deque(maxlen=5)
 
 
-	def load_session(self, ses_name):
+	def load_session00(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
 		with open(filename) as f:
 			r = f.read()
