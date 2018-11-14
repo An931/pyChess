@@ -257,6 +257,7 @@ class LogicGame:
 			return get_row(from_pos, to_pos)
 		return []
 
+
 	def is_in_check(self, king_color):
 		king_pos = None # на случай если вызывается, когда короля нет на поле 
 		for pos in self.board:

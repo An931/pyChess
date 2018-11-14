@@ -96,6 +96,7 @@ class QtGameWithComputer(QtChess):
 			return
 
 		self.acting_player = self.comp
+		self.parent.update_incheck_msg()
 		self.make_comp_move()
 
 	def make_comp_move(self):
@@ -120,6 +121,7 @@ class QtGameWithComputer(QtChess):
 			self.message_over()
 
 		self.acting_player = self.human
+		self.parent.update_incheck_msg()
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
@@ -188,6 +190,7 @@ class QtGameHotSeat(QtChess):
 			self.message_over()
 
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
+		self.parent.update_incheck_msg()
 		# =====
 		# сбщ если шах
 		# if self.game.is_in_check('white') or self.game.is_in_check('black'):
@@ -219,7 +222,8 @@ class QtGame(QWidget):
 			raise Exception()
 
 		self.chess = chess
-		self.in_check_msg = QLabel('Here would be msg\n if King is in check')
+		# self.in_check_msg = QLabel('Here would be msg\n if King is in check     ')
+		self.in_check_msg = QLabel('                                 ')
 		save_ses_btn = QPushButton('save', self)
 		save_ses_btn.clicked.connect(self.save_btn_func)
 		load_ses_btn = QPushButton('load', self)
@@ -240,7 +244,13 @@ class QtGame(QWidget):
 
 		self.setLayout(horizontalLayout)
 		self.setWindowTitle('Chess')
+		# self.setMouseTracking(True)
 		self.show()
+
+	def update_incheck_msg(self):
+		msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
+		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
+		self.in_check_msg.setText(msg1+'\n'+msg2)
 
 
 	def save_btn_func(self): 
@@ -298,15 +308,16 @@ class MenuWidget(QWidget):
 
 		else:
 			if self.modes.currentText() == 'Radioactive knights':
-				game = QtGameHotSeat(radioactive=True)
+				game = QtGameHotSeat(adioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
 				mah_color = self.mah_color.text()
-				game = QtGameHotSeat(maharajah=(mah_color, mah_pos))
+				game = QtGameHotSeat(aharajah=(mah_color, mah_pos))
 			else:
 				game = QtGameHotSeat()
 
 		self.game = QtGame(game)
+		game.parent = self.game
 
 	def add_player_count_radio(self):
 		self.one_player_radio = QRadioButton('One player (play with Computer)')
