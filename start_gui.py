@@ -246,6 +246,7 @@ class MenuWidget(QWidget):
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
 				mah_color = self.change_color_btn.text() # при игре с компом цвет Магараджи совпадает с цветом игрока
+				print(mah_color)
 				game = QtGameWithComputer(hum_color, maharajah=(mah_color, mah_pos))
 			else:
 				game = QtGameWithComputer(hum_color)
@@ -344,8 +345,9 @@ class MenuWidget(QWidget):
 			if self.modes.currentText() == 'Maharajah':
 				self.mah_pos.show()
 				self.mah_text.show()
-				if self.two_player_radio.isChecked():
-					self.mah_color.show()
+				self.mah_color.show()
+				# if self.two_player_radio.isChecked(): # так комп не может играть за mah
+				# 	self.mah_color.show()
 			else:
 				self.mah_pos.hide()
 				self.mah_text.hide()
