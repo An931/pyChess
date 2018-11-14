@@ -80,10 +80,10 @@ class QtGameWithComputer(QtChess):
 		if self.game.is_custeling(from_pos, to_pos):
 			self.game.make_move(from_pos, to_pos)
 			self.board.animate_custeling(from_pos, to_pos)
-			from_cell = self.board.get_cell(from_pos)
-			to_cell = self.board.get_cell(to_pos)
-			from_cell.del_piece()
-			to_cell.del_piece()
+			# from_cell = self.board.get_cell(from_pos)
+			# to_cell = self.board.get_cell(to_pos)
+			# from_cell.del_piece()
+			# to_cell.del_piece()
 
 		else:
 			self.game.make_move(from_pos, to_pos)
@@ -105,11 +105,16 @@ class QtGameWithComputer(QtChess):
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
 
+		if self.game.is_custeling(from_pos, to_pos):
+			self.board.animate_custeling(from_pos, to_pos)
+		else:
+			self.board.animate_move(from_pos, to_pos)
+
 		self.game.make_move(from_pos, to_pos)
 		# to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 
 		# from_cell.del_piece()
-		self.board.animate_move(from_pos, to_pos)
+
 
 		if self.game.over:
 			self.message_over()

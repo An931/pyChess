@@ -11,7 +11,10 @@ class LogicGame:
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
-			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
+			# self.board = BoardCreator.create_board(t_color, b_color, radioactive)
+			# !!!!! для создания тестовых случаев
+			# files: 
+			self.board = BoardCreator.create_board_from_file('comp_custel.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -74,8 +77,6 @@ class LogicGame:
 		# 	self.radioactive_cells.append(from_pos)
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
 
-
-
 	def is_correct_move(self, from_pos, to_pos):
 		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
 		for tup in self.last_from_poses:
@@ -97,7 +98,6 @@ class LogicGame:
 
 		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
-
 	def need_to_promote_pawn(self, to_pos):
 		if to_pos[1] != '1' and to_pos[1] != '8':
 			return False
@@ -105,7 +105,6 @@ class LogicGame:
 		if isinstance(piece, Pawn):
 			return True
 		return False
-
 
 	def save_session00(self, ses_name):
 		def get_history_str000():
@@ -133,8 +132,7 @@ class LogicGame:
 			# deque_str = str(self.last_from_poses)[:-1] + ', maxlen={})'.format(self.last_from_poses.maxlen)
 			f.write("self.last_from_poses=collections.{}\n".format(self.last_from_poses)) 
 
-# self.last_from_poses = collections.deque(maxlen=5)
-
+	# self.last_from_poses = collections.deque(maxlen=5)
 
 	def load_session00(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
@@ -144,8 +142,6 @@ class LogicGame:
 			# формат line: self.board['a1'] = Pawn(white)
 			for line in lines: 
 				exec(line)
-
-
 
 	def is_enpassant(self, from_pos, to_pos):
 		piece = self.board[from_pos]
@@ -196,6 +192,7 @@ class LogicGame:
 
 
 	def is_custeling(self, from_pos, to_pos):
+		print(from_pos, to_pos)
 		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
 			return False
 		if not isinstance(self.board[from_pos], King) or \
@@ -205,6 +202,7 @@ class LogicGame:
 			return False
 		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
 			return False
+		print('True')
 		return True
 
 	def is_barrier_on_pathway(self, from_pos, to_pos):
@@ -339,6 +337,7 @@ class Move:
 
 
 class BoardCreator:
+	files = ['comp_custel.txt']
 	def create_board(t_color, b_color, radioactive):
 		board = dict()
 		for x in 'abcdefgh':
@@ -392,4 +391,21 @@ class BoardCreator:
 					board[x+y] = ''
 
 		board[mah_pos] = Maharajah(mah_color)
+		return boar
+
+	def create_board_from_file(filename):
+		board = BoardCreator.create_empty_board()
+		with open(filename) as f:
+			r = f.read()
+			lines = r.splitlines()
+			# формат line: self.board['a1'] = Pawn(white)
+			for line in lines: 
+				exec(line)
+		return board
+
+	def create_empty_board():
+		board = dict()
+		for x in 'abcdefgh':
+			for y in '12345678':
+				board[x+y] = ''
 		return board
