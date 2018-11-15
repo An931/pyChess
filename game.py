@@ -15,7 +15,8 @@ class LogicGame:
 			# self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 			# !!!!! для создания тестовых случаев
 			# files: 
-			self.board = BoardCreator.create_board_from_file('comp_custel.txt')
+			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
+			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -31,7 +32,7 @@ class LogicGame:
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
 
 
-	def make_move(self, from_pos, to_pos, ):
+	def make_move(self, from_pos, to_pos, check_stalemate=True):
 		if self.over:
 			raise GameOverError
 
@@ -77,8 +78,8 @@ class LogicGame:
 		# if act_piece.radioactive:
 		# 	self.radioactive_cells.append(from_pos)
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
-		self.is_in_check('white')
-		self.is_in_check('black')
+		if check_stalemate:
+			self.evaluate_if_stalemate()
 
 	def is_correct_move(self, from_pos, to_pos):
 		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
@@ -211,7 +212,6 @@ class LogicGame:
 		cells = self.get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
 		return len(barriers) > 0
-
 	def get_pathway_cells(self, from_pos, to_pos):
 		""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
 				Если траектория - прямая или диагональ, то возвращает список клеток между from и to
@@ -266,7 +266,7 @@ class LogicGame:
 				king_pos = pos
 				break
 		enemy_color = 'white' if (king_color == 'black') else 'black'
-		moves = self.get_sorted_movements(enemy_color)
+		moves = self.get_movements(enemy_color, check_stalemate=False)
 		if not king_pos:
 			return
 		if moves[0][1] == king_pos:
@@ -275,14 +275,46 @@ class LogicGame:
 		return False
 
 
+	def evaluate_if_stalemate(self):
+		moves_w = self.get_movements('white')
+		moves_b = self.get_movements('black')
+		if not moves_w and not moves_b:
+			self.over = True
+			self.draw = True
+		elif not moves_w:
+			self.over = True
+			self.win_color = 'black'
+		elif not moves_b:
+			self.over = True
+			self.win_color = 'white'
+
+
+
+
+
 	# --------------------------
-	def get_sorted_movements(self, color):
+	def get_movements(self, color, check_stalemate=True):
+		""" возвращает список ходов (tuple) игрока с цветом color"""
+		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
+		moves = []
+		for from_pos in candidats_to_move:
+			for to_pos in candidats_to_move[from_pos]:
+				if check_stalemate:
+					if not self.will_be_mate(from_pos, to_pos):
+						moves.append(Move(from_pos, to_pos, self.board))
+				else:
+					moves.append(Move(from_pos, to_pos, self.board))
+
+		return [(m.from_pos, m.to_pos) for m in moves]
+
+	def get_sorted_movements00(self, color):
 		""" возвращает список ходов (tuple) игрока с цветом color, упорядоченных по выгоде"""
 		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
-				moves.append(Move(from_pos, to_pos, self.board))
+				if not self.will_be_mate(from_pos, to_pos):
+					moves.append(Move(from_pos, to_pos, self.board))
 		moves.sort(key=lambda x: x.benefit, reverse=True)
 		return [(m.from_pos, m.to_pos) for m in moves]
 
@@ -320,9 +352,18 @@ class LogicGame:
 		new_game = LogicGame(self.t_color, self.b_color)
 		new_game.board = copy.deepcopy(self.board)
 		new_game.board['a2'] = Knight('white')
-		print(new_game.board)
-		print(self.board)
 		return new_game
+
+
+	def will_be_mate(self, from_pos, to_pos):
+		# return False
+		if not self.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
+			return False
+		game = self.get_pseudo_game()
+		game.make_move(from_pos, to_pos, check_stalemate=False)
+		if game.is_in_check(self.board[from_pos].color):
+			return True
+		return False
 
 class GameOverError(BaseException):
 	pass

@@ -1,0 +1,18 @@
+
+board['a1'] = Rook("white")
+board['g1'] = Knight("white")
+board['g2'] = Pawn("white", "up")
+board['g3'] = ""
+board['g4'] = ""
+board['g5'] = ""
+board['g6'] = ""
+board['h1'] = Rook("white")
+board['h2'] = Pawn("white", "up")
+board['h3'] = ""
+board['h4'] = ""
+board['h5'] = ""
+board['h6'] = ""
+
+board['e8'] = King("black")
+board['e1'] = King("white")
+
