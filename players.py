@@ -24,9 +24,9 @@ class Computer:
 		# return self.get_random_movement()
 
 		move = self.get_sorted_movements()[0]
-		# if not self.board[move[1]] and not self.game.is_enpassant(*move):
-		# 	# чтобы ходы в начале игры не были одинаковыми 
-		# 	return self.get_random_movement()
+		if not self.board[move[1]] and not self.game.is_enpassant(*move):
+			# чтобы ходы в начале игры не были одинаковыми 
+			return self.get_random_movement()
 		return move
 
 	def get_random_movement(self):
@@ -89,6 +89,23 @@ class Computer:
 			return True
 		return False
 
+	def want_draw(self):
+		my_pieces=[]
+		enemy_pieces=[]
+		for cell in self.board:
+			piece = self.board[cell]
+			if piece and not isinstance(piece, Pawn):
+				if piece.color == self.color:
+					my_pieces.append(piece)
+				else:
+					enemy_pieces.append(piece)
+		my_pieces.sort(key=lambda x: x.weight, reverse=True)
+		enemy_pieces.sort(key=lambda x: x.weight, reverse=True)
+		if len(enemy_pieces)-len(my_pieces) > 4:
+			return True
+		if len(my_pieces) < 3 or my_pieces[1].weight<5:
+			return True
+		return False
 
 
 class Move:

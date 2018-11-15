@@ -30,7 +30,7 @@ class Piece(object):
 
 class Rook(Piece):
 		def __init__(self, color):
-				super().__init__('Rook', color, 2)
+				super().__init__('Rook', color, 5)
 
 		def can_move(self, start, to):
 				dx = ord(start[0]) - ord(to[0])
@@ -41,7 +41,7 @@ class Rook(Piece):
 
 class Knight(Piece):
 		def __init__(self, color, radioactive=False):
-				super().__init__('Knight', color, 2, radioactive)
+				super().__init__('Knight', color, 3, radioactive)
 
 		def can_move(self, start, to):
 				dx = abs(ord(start[0]) - ord(to[0]))
@@ -52,7 +52,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
 		def __init__(self, color):
-				super().__init__('Bishop', color, 2)
+				super().__init__('Bishop', color, 3)
 
 		def can_move(self, start, to):
 				dx = ord(start[0]) - ord(to[0])
@@ -62,7 +62,7 @@ class Bishop(Piece):
 
 class Queen(Piece):
 		def __init__(self, color):
-				super().__init__('Queen', color, 5)
+				super().__init__('Queen', color, 9)
 
 		def can_move(self, start, to):
 				dx = abs(ord(start[0]) - ord(to[0]))
@@ -73,7 +73,7 @@ class Queen(Piece):
 
 class King(Piece):
 		def __init__(self, color):
-				super().__init__('King', color, 6)
+				super().__init__('King', color, 10)
 
 		def can_move(self, start, to):
 				dx = abs(ord(start[0]) - ord(to[0]))
@@ -110,7 +110,7 @@ class Pawn(Piece):
 
 class Maharajah(Piece):
 		def __init__(self, color):
-				super().__init__('Maharajah', color, 6)
+				super().__init__('Maharajah', color, 10)
 
 		def can_move(self, start, to):
 				knight = Knight(self.color)

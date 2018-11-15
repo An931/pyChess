@@ -127,16 +127,19 @@ class QtGameWithComputer(QtChess):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
 		super().message_over(pers_message)
 
-	def message_draw00(self):
-		message = 'Opponent offers a draw. Woud you accept?'
-		buttonReply = QMessageBox.question(self, 'Draw', message, QMessageBox.Yes | QMessageBox.No)
-		if buttonReply == QMessageBox.Yes:
-			# self.close()
-			self.message_over()
-			# QApplication.quit()
-		# elif buttonReply = QMessageBox.Ignore:
+	def message_draw_over(self):
+		pers_message = "Congratulations, it's a draw"
+		super().message_over(pers_message)
+
 	def message_reject_draw00(self):
 		pass
+
+	def human_offers_draw(self):
+		if self.comp.want_draw():
+			self.message_draw_over()
+		else:
+			message = 'Sorry, opponent has rejected the draw'
+			QMessageBox.information(self, 'Draw', message, QMessageBox.Ok)
 
 	def load_session(self, ses_name):
 		# self.game.board = None
@@ -191,7 +194,9 @@ class QtGameHotSeat(QtChess):
 			# to_cell.del_piece()
 
 		else:
-			self.game.make_move(from_pos, to_pos)
+			# self.game.make_move(from_pos, to_pos) 
+			# without stalemate evaluation
+			self.game.make_move(from_pos, to_pos, check_stalemate=False)
 			# to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 			# from_cell.del_piece()
 
@@ -212,6 +217,25 @@ class QtGameHotSeat(QtChess):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
 		super().message_over(pers_message)
 
+	def message_draw_over(self):
+		pers_message = "Congratulations, it's a draw"
+		super().message_over(pers_message)
+
+	def message_offer_draw(self, place):
+		if place == 'top':
+			color = self.game.t_color
+		elif place == 'bottom':
+			color = self.game.b_color
+		if color == self.acting_player.color:
+			message = 'Firstly make move'
+			QMessageBox.information(self, '', message, QMessageBox.Ok)
+		else:
+			message = 'Player with {} pieces offers a draw. Woud you accept?'.format(color)
+			buttonReply = QMessageBox.question(self, 'Draw', message, QMessageBox.Yes | QMessageBox.No)
+			if buttonReply == QMessageBox.Yes:
+				self.message_draw_over() 
+
+
 	def load_session(self, ses_name):
 		# self.game.board = None
 		game = Saver.load_session(ses_name)
@@ -223,6 +247,7 @@ class QtGameHotSeat(QtChess):
 		self.acting_player = self.human_w if last_act_color == 'black' else self.human_b
 		# self.acting_player = self.human if self. == 'white' else self.comp
 		self.board.update()
+
 
 
 class QtGame(QWidget):
@@ -241,20 +266,26 @@ class QtGame(QWidget):
 		load_ses_btn.clicked.connect(self.load_btn_func)
 		# save_ses_btn.setMaximumSize(50, 10)
 		# load_ses_btn.setMaximumSize(50, 10)
-		self.offer_draw_btn = QPushButton('offer draw', self)
-		self.offer_draw_btn.clicked.connect(self.offer_draw_btn_func)
-		self.accept_draw_btn = QPushButton('accept draw', self)
-		self.accept_draw_btn.clicked.connect(self.accept_draw_btn_func)
-
 
 		horizontalLayout = QHBoxLayout()
 		verticalLayout = QVBoxLayout()
 
 		verticalLayout.addWidget(load_ses_btn)
 		verticalLayout.addWidget(save_ses_btn)
-		verticalLayout.addWidget(self.in_check_msg)
-		verticalLayout.addWidget(self.offer_draw_btn)
-		verticalLayout.addWidget(self.accept_draw_btn)
+		# verticalLayout.addWidget(self.in_check_msg) # INCHECKLABLE
+		if isinstance(self.chess, QtGameHotSeat):
+			self.offer_draw_btn_t = QPushButton('offer draw', self)
+			self.offer_draw_btn_t.clicked.connect(lambda: self.chess.message_offer_draw('top'))
+			self.offer_draw_btn_b = QPushButton('offer draw', self)
+			self.offer_draw_btn_b.clicked.connect(lambda: self.chess.message_offer_draw('bottom'))
+			verticalLayout.addWidget(self.offer_draw_btn_t)
+			verticalLayout.addWidget(self.in_check_msg)
+			verticalLayout.addWidget(self.offer_draw_btn_b)
+		if isinstance(self.chess, QtGameWithComputer):
+			self.offer_draw_btn = QPushButton('offer draw', self)
+			self.offer_draw_btn.clicked.connect(lambda: self.chess.human_offers_draw())
+			verticalLayout.addWidget(self.in_check_msg)
+			verticalLayout.addWidget(self.offer_draw_btn)
 
 		horizontalLayout.addWidget(self.chess)
 		horizontalLayout.addLayout(verticalLayout)

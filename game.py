@@ -257,7 +257,7 @@ class LogicGame:
 		return []
 
 
-	def is_in_check(self, king_color):#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	def is_in_check(self, king_color):
 		king_pos = None # на случай если вызывается, когда короля нет на поле 
 		for pos in self.board:
 			if self.board[pos] and self.board[pos].color == king_color and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
