@@ -69,7 +69,6 @@ class QtGameWithComputer(QtChess):
 		if self.acting_player == self.comp:
 			self.make_comp_move()
 
-
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
 			raise GameOverError
@@ -96,8 +95,9 @@ class QtGameWithComputer(QtChess):
 			return
 
 		self.acting_player = self.comp
-		self.parent.update_incheck_msg()
+		self.parent.update_incheck_msg()		
 		self.make_comp_move()
+		self.message_draw()
 
 	def make_comp_move(self):
 
@@ -120,12 +120,24 @@ class QtGameWithComputer(QtChess):
 		if self.game.over:
 			self.message_over()
 
+
 		self.acting_player = self.human
 		self.parent.update_incheck_msg()
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
 		super().message_over(pers_message)
+
+	def message_draw00(self):
+		message = 'Opponent offers a draw. Woud you accept?'
+		buttonReply = QMessageBox.question(self, 'Draw', message, QMessageBox.Yes | QMessageBox.No)
+		if buttonReply == QMessageBox.Yes:
+			# self.close()
+			self.message_over()
+			# QApplication.quit()
+		# elif buttonReply = QMessageBox.Ignore:
+	def message_reject_draw00(self):
+		pass
 
 	def load_session(self, ses_name):
 		# self.game.board = None
