@@ -95,9 +95,8 @@ class QtGameWithComputer(QtChess):
 			return
 
 		self.acting_player = self.comp
-		self.parent.update_incheck_msg()		
+		self.parent.update_incheck_msg()
 		self.make_comp_move()
-		self.message_draw()
 
 	def make_comp_move(self):
 
@@ -242,6 +241,10 @@ class QtGame(QWidget):
 		load_ses_btn.clicked.connect(self.load_btn_func)
 		# save_ses_btn.setMaximumSize(50, 10)
 		# load_ses_btn.setMaximumSize(50, 10)
+		self.offer_draw_btn = QPushButton('offer draw', self)
+		self.offer_draw_btn.clicked.connect(self.offer_draw_btn_func)
+		self.accept_draw_btn = QPushButton('accept draw', self)
+		self.accept_draw_btn.clicked.connect(self.accept_draw_btn_func)
 
 
 		horizontalLayout = QHBoxLayout()
@@ -250,6 +253,8 @@ class QtGame(QWidget):
 		verticalLayout.addWidget(load_ses_btn)
 		verticalLayout.addWidget(save_ses_btn)
 		verticalLayout.addWidget(self.in_check_msg)
+		verticalLayout.addWidget(self.offer_draw_btn)
+		verticalLayout.addWidget(self.accept_draw_btn)
 
 		horizontalLayout.addWidget(self.chess)
 		horizontalLayout.addLayout(verticalLayout)
@@ -264,6 +269,15 @@ class QtGame(QWidget):
 		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
 		self.in_check_msg.setText(msg1+'\n'+msg2)
 
+	def update_draw_inf(self):
+		pass
+		# менять надпись - добавлять цвет предлагающего после хода
+		# если один уже нажал, то только "согласиться" и цвет предыдущего
+
+	def offer_draw_btn_func(self):
+		pass
+	def accept_draw_btn_func(self):
+		pass
 
 	def save_btn_func(self): 
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")

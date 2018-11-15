@@ -30,8 +30,6 @@ class LogicGame:
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
-
-
 	def make_move(self, from_pos, to_pos, check_stalemate=True):
 		if self.over:
 			raise GameOverError
@@ -259,14 +257,14 @@ class LogicGame:
 		return []
 
 
-	def is_in_check(self, king_color):
+	def is_in_check(self, king_color):#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		king_pos = None # на случай если вызывается, когда короля нет на поле 
 		for pos in self.board:
 			if self.board[pos] and self.board[pos].color == king_color and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
 				king_pos = pos
 				break
 		enemy_color = 'white' if (king_color == 'black') else 'black'
-		moves = self.get_movements(enemy_color, check_stalemate=False)
+		moves = self.get_sorted_movements(enemy_color, check_stalemate=False)
 		if not king_pos:
 			return
 		if moves[0][1] == king_pos:
@@ -279,12 +277,15 @@ class LogicGame:
 		moves_w = self.get_movements('white')
 		moves_b = self.get_movements('black')
 		if not moves_w and not moves_b:
+			print('both stalemate')
 			self.over = True
 			self.draw = True
 		elif not moves_w:
+			print('w stalemate')
 			self.over = True
 			self.win_color = 'black'
 		elif not moves_b:
+			print('b stalemate')
 			self.over = True
 			self.win_color = 'white'
 
@@ -307,13 +308,16 @@ class LogicGame:
 
 		return [(m.from_pos, m.to_pos) for m in moves]
 
-	def get_sorted_movements00(self, color):
+	def get_sorted_movements(self, color, check_stalemate=True):
 		""" возвращает список ходов (tuple) игрока с цветом color, упорядоченных по выгоде"""
 		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
-				if not self.will_be_mate(from_pos, to_pos):
+				if check_stalemate:
+					if not self.will_be_mate(from_pos, to_pos):
+						moves.append(Move(from_pos, to_pos, self.board))
+				else:
 					moves.append(Move(from_pos, to_pos, self.board))
 		moves.sort(key=lambda x: x.benefit, reverse=True)
 		return [(m.from_pos, m.to_pos) for m in moves]
@@ -351,7 +355,6 @@ class LogicGame:
 	def get_pseudo_game(self):
 		new_game = LogicGame(self.t_color, self.b_color)
 		new_game.board = copy.deepcopy(self.board)
-		new_game.board['a2'] = Knight('white')
 		return new_game
 
 
