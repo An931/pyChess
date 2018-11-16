@@ -12,11 +12,11 @@ class LogicGame:
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
-			# self.board = BoardCreator.create_board(t_color, b_color, radioactive)
+			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 			# !!!!! для создания тестовых случаев
 			# files: 
 			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
-			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
+			# self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -24,12 +24,14 @@ class LogicGame:
 		self.over = False
 		self.win_color = None
 		self.is_in_check_color = None
+		self.stalemate = False
 
 		# self.history = [] # (from_pos. to_pos, piece=(color, type))
 		self.history = [] # (from_pos, to_pos)
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
+
 	def make_move(self, from_pos, to_pos, check_stalemate=True):
 		if self.over:
 			raise GameOverError
@@ -260,7 +262,7 @@ class LogicGame:
 				break
 		enemy_color = 'white' if (king_color == 'black') else 'black'
 		moves = self.get_sorted_movements(enemy_color, check_stalemate=False)
-		if not king_pos:
+		if not king_pos or not moves:
 			return
 		if moves[0][1] == king_pos:
 			print(moves[0])
@@ -271,18 +273,18 @@ class LogicGame:
 	def evaluate_if_stalemate(self):
 		moves_w = self.get_movements('white')
 		moves_b = self.get_movements('black')
-		if not moves_w and not moves_b:
-			print('both stalemate')
+		if not moves_w or not moves_b:
 			self.over = True
-			self.draw = True
-		elif not moves_w:
-			print('w stalemate')
-			self.over = True
-			self.win_color = 'black'
-		elif not moves_b:
-			print('b stalemate')
-			self.over = True
-			self.win_color = 'white'
+			self.stalemate = True
+			if not moves_w and not moves_b:
+				print('both stalemate')
+				self.draw = True
+			elif not moves_w:
+				print('w stalemate')
+				self.win_color = 'black'
+			elif not moves_b:
+				print('b stalemate')
+				self.win_color = 'white'
 
 	# --------------------------
 	def get_movements(self, color, check_stalemate=True):

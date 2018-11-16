@@ -24,7 +24,9 @@ class Computer:
 		move = moves[0]
 		if not self.board[move[1]] and not self.game.is_enpassant(*move):
 			# чтобы ходы в начале игры не были одинаковыми 
-			return self.get_random_movement()
+			# return self.get_random_movement()
+			random.shuffle(moves)
+			return moves[0]
 		return move
 
 	def get_random_movement(self):

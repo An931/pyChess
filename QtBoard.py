@@ -205,10 +205,6 @@ class QtBoard(QWidget):
 					cell.del_piece()
 
 	def update(self):
-		if self.game.over:
-			self.parent().message_over()
-			return
-
 		if self.moved_piece:
 			self.moved_piece.hide()
 			self.moved_piece = None
@@ -218,8 +214,10 @@ class QtBoard(QWidget):
 		if self.moved_rook:
 			self.moved_rook.hide()
 			self.moved_rook = None
-
 		self.put_pieces()
+		if self.game.over:
+			self.parent().message_over()
+			return
 		self.update_radioactive()
 
 	def make_human_move000(self, from_pos, to_pos):

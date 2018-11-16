@@ -103,7 +103,14 @@ class QtGameWithComputer(QtChess):
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
-		super().message_over(pers_message)
+		if self.game.stalemate:
+			if self.game.win_color == self.human.color:
+				stalemate_message = "Stalemate: your opponent can't avoid attack\n"
+			else:
+				stalemate_message = "Stalemate: you can't avoid attack\n"
+		else:
+			stalemate_message = ''
+		super().message_over(stalemate_message+pers_message)
 	def message_draw_over(self):
 		pers_message = "Congratulations, it's a draw"
 		super().message_over(pers_message)
@@ -159,10 +166,10 @@ class QtGameHotSeat(QtChess):
 			# self.game.make_move(from_pos, to_pos) 
 			# without stalemate evaluation
 			self.game.make_move(from_pos, to_pos, check_stalemate=False)
-
 			self.board.update()
-		if self.game.over:
-			self.message_over()
+
+		# if self.game.over:
+		# 	self.message_over()
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
 		self.game_app.update_incheck_msg()
 
