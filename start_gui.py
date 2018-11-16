@@ -95,7 +95,7 @@ class QtGameWithComputer(QtChess):
 			return
 
 		self.acting_player = self.comp
-		self.parent.update_incheck_msg()
+		self.game_app.update_incheck_msg()
 		self.make_comp_move()
 
 	def make_comp_move(self):
@@ -121,7 +121,7 @@ class QtGameWithComputer(QtChess):
 
 
 		self.acting_player = self.human
-		self.parent.update_incheck_msg()
+		# self.game_app.update_incheck_msg()
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
@@ -206,7 +206,7 @@ class QtGameHotSeat(QtChess):
 			self.message_over()
 
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
-		self.parent.update_incheck_msg()
+		self.game_app.update_incheck_msg()
 		# =====
 		# сбщ если шах
 		# if self.game.is_in_check('white') or self.game.is_in_check('black'):
@@ -369,12 +369,12 @@ class MenuWidget(QWidget):
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
 				mah_color = self.mah_color.text()
-				game = QtGameHotSeat(aharajah=(mah_color, mah_pos))
+				game = QtGameHotSeat(maharajah=(mah_color, mah_pos))
 			else:
 				game = QtGameHotSeat()
 
 		self.game = QtGame(game)
-		game.parent = self.game
+		game.game_app = self.game
 
 	def add_player_count_radio(self):
 		self.one_player_radio = QRadioButton('One player (play with Computer)')

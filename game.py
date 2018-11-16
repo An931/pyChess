@@ -12,11 +12,11 @@ class LogicGame:
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
-			# self.board = BoardCreator.create_board(t_color, b_color, radioactive)
+			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 			# !!!!! для создания тестовых случаев
 			# files: 
 			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
-			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
+			# self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -268,6 +268,7 @@ class LogicGame:
 		if not king_pos:
 			return
 		if moves[0][1] == king_pos:
+			print(moves[0])
 			print('ISINCHEEK '+king_color)
 			return True
 		return False
@@ -449,7 +450,7 @@ class BoardCreator:
 					board[x+y] = ''
 
 		board[mah_pos] = Maharajah(mah_color)
-		return boar
+		return board
 
 	def create_board_from_file(filename):
 		board = BoardCreator.create_empty_board()
