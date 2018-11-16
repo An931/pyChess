@@ -1,12 +1,12 @@
 
 from pieces import *
 from players import *
+from board_creator import *
 import collections
 import copy
 
 
 class LogicGame:
-	# def __init__(self, t_clor='black', b_color='white'): 
 	def __init__(self, t_color, b_color, radioactive=False, maharajah = False):
 		# костыльненько - Maharajah либо False либо (цвет и (позиция))
 		if maharajah:
@@ -133,9 +133,6 @@ class LogicGame:
 			# print(deque) -> deque([1,2,3], maxlen=2); deque = collections.deque([7, 8, 9], maxlen=2)
 			# deque_str = str(self.last_from_poses)[:-1] + ', maxlen={})'.format(self.last_from_poses.maxlen)
 			f.write("self.last_from_poses=collections.{}\n".format(self.last_from_poses)) 
-
-	# self.last_from_poses = collections.deque(maxlen=5)
-
 	def load_session00(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
 		with open(filename) as f:
@@ -171,6 +168,18 @@ class LogicGame:
 			return True
 		return False
 
+	def is_custeling(self, from_pos, to_pos):
+		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
+			return False
+		if not isinstance(self.board[from_pos], King) or \
+				not isinstance(self.board[to_pos], Rook):
+			return False
+		if self.is_barrier_on_pathway(from_pos, to_pos):
+			return False
+		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
+			return False
+		# print('custelling')
+		return True
 	def make_custeling(self, from_pos, to_pos):
 		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
 			raise MoveError
@@ -193,18 +202,7 @@ class LogicGame:
 		self.board[to_pos] = ''
 
 
-	def is_custeling(self, from_pos, to_pos):
-		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
-			return False
-		if not isinstance(self.board[from_pos], King) or \
-				not isinstance(self.board[to_pos], Rook):
-			return False
-		if self.is_barrier_on_pathway(from_pos, to_pos):
-			return False
-		if self.board[from_pos].already_moved or self.board[to_pos].already_moved:
-			return False
-		# print('custelling')
-		return True
+
 
 	def is_barrier_on_pathway(self, from_pos, to_pos):
 		cells = self.get_pathway_cells(from_pos, to_pos)
@@ -273,7 +271,6 @@ class LogicGame:
 			return True
 		return False
 
-
 	def evaluate_if_stalemate(self):
 		moves_w = self.get_movements('white')
 		moves_b = self.get_movements('black')
@@ -289,10 +286,6 @@ class LogicGame:
 			print('b stalemate')
 			self.over = True
 			self.win_color = 'white'
-
-
-
-
 
 	# --------------------------
 	def get_movements(self, color, check_stalemate=True):
@@ -353,14 +346,15 @@ class LogicGame:
 				enemy.append(c)
 		return (empty, enemy)
 
+# ----------------
+
 	def get_pseudo_game(self):
 		new_game = LogicGame(self.t_color, self.b_color)
 		new_game.board = copy.deepcopy(self.board)
 		return new_game
 
-
 	def will_be_mate(self, from_pos, to_pos):
-		# return False
+		""" определяет, приведет ли ход игрока к его мату"""
 		if not self.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
 			return False
 		game = self.get_pseudo_game()
@@ -368,13 +362,6 @@ class LogicGame:
 		if game.is_in_check(self.board[from_pos].color):
 			return True
 		return False
-
-class GameOverError(BaseException):
-	pass
-
-class MoveError(BaseException):
-	pass
-
 
 
 class Move:
@@ -395,76 +382,9 @@ class Move:
 			self.benefit = 1
 
 
-class BoardCreator:
-	files = ['comp_custel.txt']
-	def create_board(t_color, b_color, radioactive):
-		board = dict()
-		for x in 'abcdefgh':
-			for y in '12345678':
-				board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color, radioactive)
-		return board
 
-	def get_piece(x, y, t_color, b_color, radioactive=False):
-		if y == '2':
-			return Pawn(b_color, 'up')
-		if y == '7':
-			return Pawn(t_color, 'down')
-		if y == '1':
-			# color = b_color
-			return BoardCreator.get_strong_piece(x, b_color, radioactive)
-		if y == '8':
-			# color = t_clor
-			return BoardCreator.get_strong_piece(x, t_color, radioactive)
-		return ''
+class GameOverError(BaseException):
+	pass
 
-	def get_strong_piece(x, color, radioactive_knights):
-		if x == 'a' or x == 'h':
-			return Rook(color)
-		if x == 'b' or x == 'g':
-			# return Knight(color)
-			return Knight(color, radioactive=radioactive_knights)
-		if x == 'c' or x == 'f':
-			return Bishop(color)
-		if x == 'd':
-			return Queen(color)
-		if x == 'e':
-			return King(color)
-
-	def get_maharajah_board(t_color, b_color, mah_color, mah_pos):
-		board = dict()
-		if mah_pos[1] not in ['1', '2', '7', '8']:
-			raise Exception('wrong Maharajah position')
-
-		if mah_pos[1] in '12':
-			for x in 'abcdefgh':
-				for y in '345678':
-					board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color)
-				for y in '12':
-					board[x+y] = ''
-
-		else:
-			for x in 'abcdefgh':
-				for y in '123456':
-					board[x+y] = BoardCreator.get_piece(x, y, t_color, b_color)
-				for y in '78':
-					board[x+y] = ''
-
-		board[mah_pos] = Maharajah(mah_color)
-		return board
-
-	def create_board_from_file(filename):
-		board = BoardCreator.create_empty_board()
-		with open(filename) as f:
-			r = f.read()
-			lines = r.splitlines()
-			# формат line: self.board['a1'] = Pawn(white)
-			for line in lines: 
-				exec(line)
-		return board
-
-	def create_empty_board():
-		board = dict()
-		for x in 'abcdefgh':
-			for y in '12345678':
-				board[x+y] = ''
-		return board
+class MoveError(BaseException):
+	pass

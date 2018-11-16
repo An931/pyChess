@@ -53,13 +53,10 @@ class QtGameWithComputer(QtChess):
 		super(QtGameWithComputer, self).__init__()
 
 		comp_color = 'black' if hum_color == 'white' else 'white'
-
 		self.game = LogicGame(comp_color, hum_color, radioactive, maharajah)
 		self.board = QtBoard(self)
-
 		self.human = Player(hum_color)
 		self.comp = Computer(self.game, comp_color)
-
 		self.acting_player = self.human if hum_color == 'white' else self.comp
 
 		self.setWindowTitle('ChessWithComputer')
@@ -72,22 +69,13 @@ class QtGameWithComputer(QtChess):
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
 			raise GameOverError
-
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
-
 		if self.game.is_custeling(from_pos, to_pos):
 			self.game.make_move(from_pos, to_pos)
 			self.board.animate_custeling(from_pos, to_pos)
-			# from_cell = self.board.get_cell(from_pos)
-			# to_cell = self.board.get_cell(to_pos)
-			# from_cell.del_piece()
-			# to_cell.del_piece()
-
 		else:
 			self.game.make_move(from_pos, to_pos)
-			# to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
-			# from_cell.del_piece()
 			self.board.update()
 
 		if self.game.over:
@@ -99,41 +87,28 @@ class QtGameWithComputer(QtChess):
 		self.make_comp_move()
 
 	def make_comp_move(self):
-
 		from_pos, to_pos = self.comp.get_move()
-
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
-
 		if self.game.is_custeling(from_pos, to_pos):
 			self.board.animate_custeling(from_pos, to_pos)
 		else:
 			self.board.animate_move(from_pos, to_pos)
 
 		self.game.make_move(from_pos, to_pos)
-		# to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
 
-		# from_cell.del_piece()
-
-
-		if self.game.over:
+		if self.game.over: # убрать в другое место, чтобы была анимация
 			self.message_over()
 
-
 		self.acting_player = self.human
-		# self.game_app.update_incheck_msg()
+		self.game_app.update_incheck_msg()
 
 	def message_over(self):
 		pers_message = 'You won!' if (self.game.win_color == self.human.color) else 'You lost :('
 		super().message_over(pers_message)
-
 	def message_draw_over(self):
 		pers_message = "Congratulations, it's a draw"
 		super().message_over(pers_message)
-
-	def message_reject_draw00(self):
-		pass
-
 	def human_offers_draw(self):
 		if self.comp.want_draw():
 			self.message_draw_over()
@@ -167,7 +142,6 @@ class QtGameHotSeat(QtChess):
 		self.human_b = Player('black')
 		self.game = LogicGame('black', 'white', radioactive, maharajah)
 		self.board = QtBoard(self)
-
 		self.acting_player = self.human_w
 
 		self.setWindowTitle('HotSeat')
@@ -175,52 +149,32 @@ class QtGameHotSeat(QtChess):
 		self.setVisualBoard()
 		self.show()
 
-
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
 			raise GameOverError
-		# if self.board.get_piece(from_pos).color != self.acting_player.color:
-		# 	return
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
 
 		if self.game.is_custeling(from_pos, to_pos):
 			self.game.make_move(from_pos, to_pos)
 			self.board.animate_custeling(from_pos, to_pos)
-			# это должно быть в методе анимации 
-			# from_cell = self.board.get_cell(from_pos)
-			# to_cell = self.board.get_cell(to_pos)
-			# from_cell.del_piece()
-			# to_cell.del_piece()
-
 		else:
 			# self.game.make_move(from_pos, to_pos) 
 			# without stalemate evaluation
 			self.game.make_move(from_pos, to_pos, check_stalemate=False)
-			# to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
-			# from_cell.del_piece()
 
 			self.board.update()
-
 		if self.game.over:
 			self.message_over()
-
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
 		self.game_app.update_incheck_msg()
-		# =====
-		# сбщ если шах
-		# if self.game.is_in_check('white') or self.game.is_in_check('black'):
-		# 	self.message_over()
-			# ===========
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
 		super().message_over(pers_message)
-
 	def message_draw_over(self):
 		pers_message = "Congratulations, it's a draw"
 		super().message_over(pers_message)
-
 	def message_offer_draw(self, place):
 		if place == 'top':
 			color = self.game.t_color
@@ -235,19 +189,16 @@ class QtGameHotSeat(QtChess):
 			if buttonReply == QMessageBox.Yes:
 				self.message_draw_over() 
 
-
 	def load_session(self, ses_name):
 		# self.game.board = None
 		game = Saver.load_session(ses_name)
 		self.game = game
 		self.board.game = game
-		# print(self.game.board)
 
 		last_act_color = game.board[game.history[-1][1]].color
 		self.acting_player = self.human_w if last_act_color == 'black' else self.human_b
 		# self.acting_player = self.human if self. == 'white' else self.comp
 		self.board.update()
-
 
 
 class QtGame(QWidget):
@@ -258,7 +209,6 @@ class QtGame(QWidget):
 			raise Exception()
 
 		self.chess = chess
-		# self.in_check_msg = QLabel('Here would be msg\n if King is in check     ')
 		self.in_check_msg = QLabel('                                 ')
 		save_ses_btn = QPushButton('save', self)
 		save_ses_btn.clicked.connect(self.save_btn_func)
@@ -272,7 +222,6 @@ class QtGame(QWidget):
 
 		verticalLayout.addWidget(load_ses_btn)
 		verticalLayout.addWidget(save_ses_btn)
-		# verticalLayout.addWidget(self.in_check_msg) # INCHECKLABLE
 		if isinstance(self.chess, QtGameHotSeat):
 			self.offer_draw_btn_t = QPushButton('offer draw', self)
 			self.offer_draw_btn_t.clicked.connect(lambda: self.chess.message_offer_draw('top'))
@@ -281,7 +230,7 @@ class QtGame(QWidget):
 			verticalLayout.addWidget(self.offer_draw_btn_t)
 			verticalLayout.addWidget(self.in_check_msg)
 			verticalLayout.addWidget(self.offer_draw_btn_b)
-		if isinstance(self.chess, QtGameWithComputer):
+		elif isinstance(self.chess, QtGameWithComputer):
 			self.offer_draw_btn = QPushButton('offer draw', self)
 			self.offer_draw_btn.clicked.connect(lambda: self.chess.human_offers_draw())
 			verticalLayout.addWidget(self.in_check_msg)
@@ -289,32 +238,19 @@ class QtGame(QWidget):
 
 		horizontalLayout.addWidget(self.chess)
 		horizontalLayout.addLayout(verticalLayout)
-
 		self.setLayout(horizontalLayout)
 		self.setWindowTitle('Chess')
-		# self.setMouseTracking(True)
 		self.show()
 
 	def update_incheck_msg(self):
+		print('update_incheck_msg')
 		msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
 		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
-		self.in_check_msg.setText(msg1+'\n'+msg2)
-
-	def update_draw_inf(self):
-		pass
-		# менять надпись - добавлять цвет предлагающего после хода
-		# если один уже нажал, то только "согласиться" и цвет предыдущего
-
-	def offer_draw_btn_func(self):
-		pass
-	def accept_draw_btn_func(self):
-		pass
-
+		self.in_check_msg.setText(msg1+'\n\n'+msg2)
 	def save_btn_func(self): 
 		text, okPressed = QInputDialog.getText(self, "Save session", "Enter session name:", QLineEdit.Normal, "")
 		if okPressed and text != '':
 			self.chess.save_session(text)
-
 	def load_btn_func(self):
 		sessions = self.get_sessions_files()
 		ses_name, okPressed = QInputDialog.getItem(self, "Load session", "Saved session:", sessions, 0, False)
@@ -346,12 +282,8 @@ class MenuWidget(QWidget):
 		self.show()
 
 	def start_game_mode(self):
-		# создает (начинает) нужный объект - игру 
 		self.hide()
-		# combo box --currentText()
-
-		# play with computer
-		if self.one_player_radio.isChecked(): 
+		if self.one_player_radio.isChecked(): # play with computer
 			hum_color = self.change_color_btn.text()
 			if self.modes.currentText() == 'Radioactive knights':
 				game = QtGameWithComputer(hum_color, radioactive=True)
@@ -362,8 +294,7 @@ class MenuWidget(QWidget):
 				game = QtGameWithComputer(hum_color, maharajah=(mah_color, mah_pos))
 			else:
 				game = QtGameWithComputer(hum_color)
-
-		else:
+		elif self.two_players_radio.isChecked(): # two players
 			if self.modes.currentText() == 'Radioactive knights':
 				game = QtGameHotSeat(adioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
@@ -379,16 +310,15 @@ class MenuWidget(QWidget):
 	def add_player_count_radio(self):
 		self.one_player_radio = QRadioButton('One player (play with Computer)')
 		self.one_player_radio.setChecked(True)
-		self.two_player_radio = QRadioButton('Two players')
-		# self.one_player_radio.toggled.connect(lambda:self.two_player_radio.setChecked(not self.one_player_radio.isChecked()))
-		# self.two_player_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_player_radio.isChecked()))
+		self.two_players_radio = QRadioButton('Two players')
+		# self.one_player_radio.toggled.connect(lambda:self.two_players_radio.setChecked(not self.one_player_radio.isChecked()))
+		# self.two_players_radio.toggled.connect(lambda:self.one_player_radio.setChecked(not self.two_players_radio.isChecked()))
 		self.verticalLayout.addWidget(self.one_player_radio)
-		self.verticalLayout.addWidget(self.two_player_radio)
+		self.verticalLayout.addWidget(self.two_players_radio)
 
 	def add_change_color(self):
 		horizontalLayout = QHBoxLayout()
 		supported_frame = QFrame() # for other elements don't move when hide
-
 		self.change_color_btn = QPushButton()
 		self.change_color_btn.setText('white')
 		self.change_color_btn.setToolTip('Click to change your color')
@@ -413,7 +343,7 @@ class MenuWidget(QWidget):
 		def hide_or_show_choice_clr():
 			self.change_color_btn.setHidden(not self.change_color_btn.isHidden())
 			self.change_color_text.setHidden(not self.change_color_text.isHidden())
-		self.two_player_radio.toggled.connect(hide_or_show_choice_clr)
+		self.two_players_radio.toggled.connect(hide_or_show_choice_clr)
 
 	def add_modes(self):
 		# add special features
@@ -462,7 +392,7 @@ class MenuWidget(QWidget):
 				self.mah_pos.show()
 				self.mah_text.show()
 				self.mah_color.show()
-				# if self.two_player_radio.isChecked(): # так комп не может играть за mah
+				# if self.two_players_radio.isChecked(): # так комп не может играть за mah
 				# 	self.mah_color.show()
 			else:
 				self.mah_pos.hide()
@@ -481,30 +411,5 @@ class MenuWidget(QWidget):
 
 if __name__ == '__main__':
 	app = QApplication(sys.argv)
-	# game = QtGameWithComputer()
-	# game = QtGameHotSeat()
-	# chess = QtChess()
 	wind = MenuWidget()
 	sys.exit(app.exec_())
-
-	# -----------------------
-	# app = QApplication(sys.argv)
-	# mainWidget = QWidget()
-	# horizontalLayout = QHBoxLayout()
-	# board = QtBoard(mainWidget)
-	# horizontalLayout.addWidget(board)
-
-	# verticalLayout = QVBoxLayout()
-	# save_ses_btn = QPushButton('save', mainWidget)
-	# save_ses_btn.clicked.connect(board.save_session)
-	# verticalLayout.addWidget(save_ses_btn)
-	# load_ses_btn = QPushButton('load', mainWidget)
-	# load_ses_btn.clicked.connect(board.load_session)
-	# verticalLayout.addWidget(load_ses_btn)
-
-	# horizontalLayout.addLayout(verticalLayout)
-
-	# mainWidget.setLayout(horizontalLayout)
-	# mainWidget.show()
-	# sys.exit(app.exec_())
-	# -----------------------------------------

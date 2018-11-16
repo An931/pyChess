@@ -13,14 +13,3 @@ class Saver:
 			game = pickle.load(f)
 		return game
 
-class P:
-	def __init__(self):
-		self.p = 'a'
-		self.a='v'
-		print(self.p, self.a)
-
-
-if __name__ == '__main__':
-	p = P()
-	Saver.save_session('h', p)
-	Saver.load_session()
