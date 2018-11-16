@@ -1,6 +1,5 @@
 from pieces import *
 
-
 class BoardCreator:
 	def create_board(t_color, b_color, radioactive):
 		board = dict()

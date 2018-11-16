@@ -1,7 +1,5 @@
-
 import sys
 import os
-
 
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
@@ -78,16 +76,19 @@ class QtGameWithComputer(QtChess):
 			self.game.make_move(from_pos, to_pos)
 			self.board.update()
 
-		if self.game.over:
-			self.message_over()
-			return
+		# if self.game.over:
+		# 	self.message_over()
+		# 	return
 
 		self.acting_player = self.comp
 		self.game_app.update_incheck_msg()
 		self.make_comp_move()
 
 	def make_comp_move(self):
-		from_pos, to_pos = self.comp.get_move()
+		move = self.comp.get_move()
+		if not move:
+			return
+		from_pos, to_pos = move
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
 		if self.game.is_custeling(from_pos, to_pos):
@@ -96,9 +97,6 @@ class QtGameWithComputer(QtChess):
 			self.board.animate_move(from_pos, to_pos)
 
 		self.game.make_move(from_pos, to_pos)
-
-		if self.game.over: # убрать в другое место, чтобы была анимация
-			self.message_over()
 
 		self.acting_player = self.human
 		self.game_app.update_incheck_msg()
@@ -133,7 +131,6 @@ class QtGameWithComputer(QtChess):
 		self.board.update()
 		if self.acting_player == self.comp:
 			self.make_comp_move()
-
 
 class QtGameHotSeat(QtChess):
 	def __init__(self, radioactive=False, maharajah=False):

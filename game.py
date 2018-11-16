@@ -12,11 +12,11 @@ class LogicGame:
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
-			self.board = BoardCreator.create_board(t_color, b_color, radioactive)
+			# self.board = BoardCreator.create_board(t_color, b_color, radioactive)
 			# !!!!! для создания тестовых случаев
 			# files: 
 			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
-			# self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
+			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -201,9 +201,6 @@ class LogicGame:
 		self.board[from_pos] = ''
 		self.board[to_pos] = ''
 
-
-
-
 	def is_barrier_on_pathway(self, from_pos, to_pos):
 		cells = self.get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
@@ -380,8 +377,6 @@ class Move:
 		if isinstance(acting_piece, Pawn) and acting_piece.can_capture(self.from_pos, self.to_pos) \
 				and self.benefit == 0:
 			self.benefit = 1
-
-
 
 class GameOverError(BaseException):
 	pass

@@ -176,7 +176,6 @@ class QtBoard(QWidget):
 		super(QtBoard, self).__init__(parent)
 		self.game = game.game #OPASNO
 		# self.game = game #OPASNO
-
 		verticalLayout = QVBoxLayout()
 		for y in '87654321':
 			horizontalLayout = QHBoxLayout()
