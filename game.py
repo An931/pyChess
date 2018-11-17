@@ -51,7 +51,7 @@ class LogicGame:
 				raise Exception()
 			king_future_place = 'g'+row if to_pos[0]=='h' else 'c'+row
 			rook_future_place = 'f'+row if to_pos[0]=='h' else 'd'+row
-			color = 'white' if from_pos[1] == '1' else 'black'
+			color = self.b_color if from_pos[1] == '1' else self.t_color
 			self.board[king_future_place] = King(color)
 			self.board[rook_future_place] = Rook(color)
 			self.board[to_pos] = ''
@@ -171,6 +171,8 @@ class LogicGame:
 		return False
 
 	def is_custeling(self, from_pos, to_pos):
+		if from_pos == 'e1':
+			f=7
 		if from_pos not in ['e1', 'e8'] or to_pos not in ['a1', 'h1', 'a8', 'h8'] or from_pos[1] != to_pos[1]:
 			return False
 		if not isinstance(self.board[from_pos], King) or \
@@ -182,15 +184,8 @@ class LogicGame:
 			return False
 		# print('custelling')
 		return True
-	def make_custeling(self, from_pos, to_pos):
-		if from_pos != 'e1' or to_pos not in ['a1', 'h1']:
-			raise MoveError
-		if not isinstance(self.board[from_pos], King) or \
-				not isinstance(self.board[to_pos], Rook):
-			raise MoveError
-		if self.is_barrier_on_pathway(from_pos, to_pos):
-			raise MoveError
 
+	def make_custeling0000(self, from_pos, to_pos):
 		if to_pos == 'h1':
 			king_place = 'g1'
 			rook_place = 'f1'
@@ -257,16 +252,17 @@ class LogicGame:
 	def is_in_check(self, king_color):
 		king_pos = None # на случай если вызывается, когда короля нет на поле 
 		for pos in self.board:
-			if self.board[pos] and self.board[pos].color == king_color and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
+			if self.board[pos] and self.board[pos].color == king_color \
+			and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
 				king_pos = pos
 				break
 		enemy_color = 'white' if (king_color == 'black') else 'black'
-		moves = self.get_sorted_movements(enemy_color, check_stalemate=False)
+		moves = self.get_sorted_movements(enemy_color, avoid_mate=False)
 		if not king_pos or not moves:
 			return
 		if moves[0][1] == king_pos:
-			print(moves[0])
-			print('ISINCHEEK '+king_color)
+			# print(moves[0])
+			# print('ISINCHEEK '+king_color)
 			return True
 		return False
 
@@ -287,13 +283,13 @@ class LogicGame:
 				self.win_color = 'white'
 
 	# --------------------------
-	def get_movements(self, color, check_stalemate=True):
+	def get_movements(self, color, avoid_mate=True):
 		""" возвращает список ходов (tuple) игрока с цветом color"""
 		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
-				if check_stalemate:
+				if avoid_mate:
 					if not self.will_be_mate(from_pos, to_pos):
 						moves.append(Move(from_pos, to_pos, self.board))
 				else:
@@ -301,13 +297,13 @@ class LogicGame:
 
 		return [(m.from_pos, m.to_pos) for m in moves]
 
-	def get_sorted_movements(self, color, check_stalemate=True):
+	def get_sorted_movements(self, color, avoid_mate=True):
 		""" возвращает список ходов (tuple) игрока с цветом color, упорядоченных по выгоде"""
 		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
 		moves = []
 		for from_pos in candidats_to_move:
 			for to_pos in candidats_to_move[from_pos]:
-				if check_stalemate:
+				if avoid_mate:
 					if not self.will_be_mate(from_pos, to_pos):
 						moves.append(Move(from_pos, to_pos, self.board))
 				else:
@@ -354,8 +350,11 @@ class LogicGame:
 
 	def will_be_mate(self, from_pos, to_pos):
 		""" определяет, приведет ли ход игрока к его мату"""
-		if not self.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
+		# return False #!!!!!!!!!!!!!!!!!!!!!!!!
+		if not self.is_correct_move(from_pos, to_pos):
 			return False
+		if isinstance(self.board[to_pos], King) or isinstance(self.board[to_pos], Maharajah):
+			return False #если на этом ходе игра и кончится
 		game = self.get_pseudo_game()
 		game.make_move(from_pos, to_pos, check_stalemate=False)
 		if game.is_in_check(self.board[from_pos].color):

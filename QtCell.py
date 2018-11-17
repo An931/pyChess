@@ -51,6 +51,7 @@ class QtCell(QFrame):
 			self.setStyleSheet('border: 2px solid {}; background-color:{};'.format(color, self.color))
 		else:
 			self.setStyleSheet('background-color:{};'.format(self.color))
+
 	def dragEnterEvent(self, event):
 		if event.source() == self:
 			event.accept()
@@ -58,13 +59,13 @@ class QtCell(QFrame):
 			# наведение на дугие клетки
 			# здесь можно высчитывать возможность хода
 			# либо для каждой кл заново, либо сразу сост спсок возм-ых и искать кл в этом списке
-			event.acceptProposedAction()
+			event.acceptProposedAction()	
+	dragMoveEvent = dragEnterEvent
 
 	def dropEvent(self, event):
 		from_pos = event.source().id
 		to_pos = self.id
 		self.game.try_make_move(from_pos, to_pos)
-
 
 	def mousePressEvent(self, event):
 		# нажатие именно на фигуру

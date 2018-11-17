@@ -16,6 +16,7 @@ class Computer:
 		if color not in ['white', 'black']:
 			raise Exception
 		self.color = color
+		print(self.color)
 
 	def get_move(self):
 		moves = self.game.get_sorted_movements(self.color)
@@ -37,9 +38,10 @@ class Computer:
 		res = (from_pos, moves[from_pos][r2])
 		return res
 
-	def will_be_mate(self, from_pos, to_pos):
+	def will_be_mate00(self, from_pos, to_pos):
 		# return False
-		if not self.game.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
+		# if not self.game.is_correct_move(from_pos, to_pos) or not isinstance(self.board[from_pos], King):
+		if not self.game.is_correct_move(from_pos, to_pos):
 			return False
 		game = self.game.get_pseudo_game()
 		game.make_move(from_pos, to_pos)

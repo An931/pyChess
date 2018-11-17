@@ -1,5 +1,6 @@
 import sys
 import os
+import time
 
 from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QPoint, Qt, QObject, QPointF, QPropertyAnimation, pyqtProperty,
@@ -61,12 +62,13 @@ class QtGameWithComputer(QtChess):
 		self.setVisualBoard()
 		self.show()
 
+	def try_first_move(self):
 		if self.acting_player == self.comp:
 			self.make_comp_move()
 
 	def try_make_move(self, from_pos, to_pos):
 		if self.game.over:
-			raise GameOverError
+			return
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
 		if self.game.is_custeling(from_pos, to_pos):
@@ -76,16 +78,16 @@ class QtGameWithComputer(QtChess):
 			self.game.make_move(from_pos, to_pos)
 			self.board.update()
 
-		# if self.game.over:
-		# 	self.message_over()
-		# 	return
-
+		# time.sleep(3)
 		self.acting_player = self.comp
 		self.game_app.update_incheck_msg()
 		self.make_comp_move()
 
 	def make_comp_move(self):
-		move = self.comp.get_move()
+		if self.game.over:
+			return
+		move = self.comp.get_move() 
+		# move = self.comp.get_random_movement() #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		if not move:
 			return
 		from_pos, to_pos = move
@@ -122,12 +124,10 @@ class QtGameWithComputer(QtChess):
 			QMessageBox.information(self, 'Draw', message, QMessageBox.Ok)
 
 	def load_session(self, ses_name):
-		# self.game.board = None
 		game = Saver.load_session(ses_name)
 		self.game = game
 		self.comp.game = game
 		self.board.game = game
-		# print(self.game.board)
 		self.human = Player(game.b_color)
 		self.comp = Computer(self.game, game.t_color)
 
@@ -310,6 +310,8 @@ class MenuWidget(QWidget):
 
 		self.game = QtGame(game)
 		game.game_app = self.game
+		if (isinstance(game, QtGameWithComputer)):
+			game.try_first_move() # чтобы выполнился ход компьютера, когда он первый
 
 	def add_player_count_radio(self):
 		self.one_player_radio = QRadioButton('One player (play with Computer)')
