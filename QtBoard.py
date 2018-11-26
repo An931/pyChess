@@ -202,12 +202,13 @@ class QtBoard(QWidget):
 		# blinked_piece = QtPiece('King', 'red', cell)
 		# blinked_piece.hide()
 		piece = self.get_cell(from_pos).piece
-		movie = QMovie("pieces_img/r_King.gif")
+		movie = QMovie('pieces_img/{}_King_incheck.gif'.format(piece.color[0]))
 		# movie = QMovie("pieces_img/with_menu.gif")
 		movie.setScaledSize(piece.size())
 
 		piece.setMovie(movie)
 		movie.start()
+		# movie.stop()
 
 	def highlight_if_incheck(self):
 		incheck_king_poses = self.game.get_incheck_king_positions()

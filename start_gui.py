@@ -75,6 +75,7 @@ class QtGameWithComputer(QtChess):
 		pseudo_g = self.game.get_pseudo_game()
 		pseudo_g.make_move(from_pos, to_pos)
 		if pseudo_g.is_in_check(self.human.color):
+			# self.board.blink_piece(pseudo_g.get_incheck_king_pos(self.human.color))
 			return
 
 		if self.game.is_custeling(from_pos, to_pos):
@@ -176,7 +177,8 @@ class QtGameHotSeat(QtChess):
 		else:
 			# self.game.make_move(from_pos, to_pos) 
 			# without stalemate evaluation
-			self.game.make_move(from_pos, to_pos, check_stalemate=False)
+			# self.game.make_move(from_pos, to_pos, check_stalemate=False)
+			self.game.make_move(from_pos, to_pos, check_stalemate=True)
 			self.board.update()
 
 		# if self.game.over:
@@ -186,7 +188,13 @@ class QtGameHotSeat(QtChess):
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
-		super().message_over(pers_message)
+		if self.game.stalemate:
+			clr = 'white' if self.game.win_color == 'black' else 'black'
+			stalemate_message = "Stalemate: player with {} pieces can't avoid attack\n".format(clr)
+		else:
+			stalemate_message = ''
+		super().message_over(stalemate_message+pers_message)
+
 	def message_draw_over(self):
 		pers_message = "Congratulations, it's a draw"
 		super().message_over(pers_message)
