@@ -18,6 +18,19 @@ class Computer:
 		self.color = color
 		print(self.color)
 
+	def get_moveMBFASTER(self):
+		moves = self.game.get_sorted_movements(self.color, avoid_mate=False)
+		if not moves:
+			return
+		move, i = moves[0], 0
+		while self.game.will_be_mate(*move):
+			i += 1
+			move = moves[i]
+		if not self.board[move[1]] and not self.game.is_enpassant(*move): # чтобы ходы в начале игры не были одинаковыми
+			random.shuffle(moves)
+			return moves[0]
+		return move
+
 	def get_move(self):
 		moves = self.game.get_sorted_movements(self.color)
 		if not moves:

@@ -26,6 +26,7 @@ class QtCell(QFrame):
 		self.setMinimumSize(50, 50)
 		self.setLineWidth(10)
 		self.setAcceptDrops(True)
+		self.setMouseTracking(True)
 
 	def set_piece(self, piece_name, piece_color):
 		self.del_piece()
@@ -45,10 +46,15 @@ class QtCell(QFrame):
 			self.setStyleSheet('background-color:white;')
 			self.color = 'white'
 
-	def highlight(self, do=True):
+
+	def highlight(self, do=True, cause=''):
+		# border_style = 'dotted' if cause == 'incheck' else 'solid'
+		if cause:
+			self.setStyleSheet('background-color:{};'.format('red'))
+		border_style = 'solid'
 		if do:
 			color = 'red'
-			self.setStyleSheet('border: 2px solid {}; background-color:{};'.format(color, self.color))
+			self.setStyleSheet('border: 2px {} {}; border-radius: 4px; background-color:{};'.format(border_style, color, self.color))
 		else:
 			self.setStyleSheet('background-color:{};'.format(self.color))
 
@@ -59,8 +65,7 @@ class QtCell(QFrame):
 			# наведение на дугие клетки
 			# здесь можно высчитывать возможность хода
 			# либо для каждой кл заново, либо сразу сост спсок возм-ых и искать кл в этом списке
-			event.acceptProposedAction()	
-	dragMoveEvent = dragEnterEvent
+			event.acceptProposedAction()
 
 	def dropEvent(self, event):
 		from_pos = event.source().id
@@ -104,11 +109,19 @@ class QtCell(QFrame):
 		else:
 			child.setPixmap(pixmap)
 
+	def mouseMoveEvent(self, event):
+		if str(type(self.game)) == "<class '__main__.QtGameWithComputer'>":
+		# if isinstance(self.game, QtGameWithComputer):
+			self.game.try_make_comp_move()
+
 
 class QtPiece(QLabel):
 	def __init__(self, name, color, parent):
 		pixmap = QPixmap('pieces_img/{}.png'.format(color[0]+'_'+name))
 		pixmap = pixmap.scaled(50, 50)
+		# if name == 'King': # или Магараджа !!!1
+		# 	self.origin_pixmap = pixmap
+		# 	self.incheck_pixmap = QPixmap('pieces_img/{}.png'.format(color[0]+'_'+name+'_incheck')).scaled(50, 50)
 		super(QLabel, self).__init__(parent)
 		self.setPixmap(pixmap)
 		self.setMinimumSize(50, 50)
@@ -119,5 +132,9 @@ class QtPiece(QLabel):
 		self.color = color
 		self.cell = parent
 		self.show()
+		self.setMouseTracking(True)
+
+def mouseMoveEvent(self, event):
+	return self.cell.mouseMoveEvent(event)
 
 

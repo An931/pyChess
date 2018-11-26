@@ -219,6 +219,7 @@ class QtBoard(QWidget):
 			self.parent().message_over()
 			return
 		self.update_radioactive()
+		# self.update_incheck_highlits()
 
 	def make_human_move000(self, from_pos, to_pos):
 		self.game.make_move(from_pos, to_pos)
@@ -319,9 +320,30 @@ class QtBoard(QWidget):
 		# пробегается по клеткам (лог или гуи) и подсвечивает либо делает как было
 		for cell in self.game.board:
 			# if cell in self.game.radioactive_cells:
+			if self.game.board[cell]:
+				continue
 			for tup in self.game.last_from_poses:
 				if tup[0] == cell and tup[1]:
 					self.get_cell(cell).highlight()
 					break
 				else:
 					self.get_cell(cell).highlight(False)
+
+	def update_incheck_highlghts00(self):
+		white_in_check = self.game.is_in_check('white')
+		black_in_check = self.game.is_in_check('black')
+		for row in self.layout().children():
+			for cell in [row.itemAt(i).widget() for i in range(8)]:
+				if cell.piece and cell.piece.name == 'King':
+					if cell.piece.color == 'white':
+						if white_in_check: 
+							cell.highlight_incheck(True)
+						else:
+							cell.highlight_incheck(False)
+					else:
+						if black_in_check: 
+							cell.highlight_incheck(True)
+						else:
+							cell.highlight_incheck(False)
+
+

@@ -16,7 +16,7 @@ class LogicGame:
 			# !!!!! для создания тестовых случаев
 			# files: 
 			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
-			# self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
+			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -36,10 +36,10 @@ class LogicGame:
 		if self.over:
 			raise GameOverError
 
-		if not self.is_correct_move(from_pos, to_pos):
-			print(from_pos, to_pos, 'is incorrect move')
-			# self.print_board()
-			raise MoveError
+		# if not self.is_correct_move(from_pos, to_pos, avoid_mate):
+		# 	print(from_pos, to_pos, 'is incorrect move')
+		# 	# self.print_board()
+		# 	raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):
 			self.board[to_pos[0]+from_pos[1]] = ''
@@ -83,6 +83,15 @@ class LogicGame:
 
 	def is_correct_move(self, from_pos, to_pos):
 		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
+		# check if would be mate
+		# if avoid_mate:
+		# 	p_game = self.get_pseudo_game()
+		# 	if p_game.is_correct_move(from_pos, to_pos, False):
+		# 		p_game.make_move(from_pos, to_pos, False)
+		# 		if not p_game.is_in_check(self.board[from_pos].color):
+		# 			return True
+		# 		return False
+
 		for tup in self.last_from_poses:
 			if tup[0] == to_pos and tup[1]:
 				return False
@@ -135,6 +144,7 @@ class LogicGame:
 			# print(deque) -> deque([1,2,3], maxlen=2); deque = collections.deque([7, 8, 9], maxlen=2)
 			# deque_str = str(self.last_from_poses)[:-1] + ', maxlen={})'.format(self.last_from_poses.maxlen)
 			f.write("self.last_from_poses=collections.{}\n".format(self.last_from_poses)) 
+
 	def load_session00(self, ses_name):
 		filename = 'saved_sessions/{}.txt'.format(ses_name)
 		with open(filename) as f:
@@ -266,6 +276,20 @@ class LogicGame:
 			return True
 		return False
 
+	def get_incheck_king_positions(self):
+		king_poses = []
+		for pos in self.board:
+			if self.board[pos]	and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
+				king_poses.append(pos)
+
+		incheck_k_poses = []
+		for k_pos in king_poses:
+			enemy_color = 'white' if (self.board[k_pos].color == 'black') else 'black'
+			moves = self.get_sorted_movements(enemy_color, avoid_mate=False)
+			if moves[0][1] == k_pos:
+				incheck_k_poses.append(k_pos)
+		return incheck_k_poses
+
 	def evaluate_if_stalemate(self):
 		moves_w = self.get_movements('white')
 		moves_b = self.get_movements('black')
@@ -346,7 +370,8 @@ class LogicGame:
 	def get_pseudo_game(self):
 		new_game = LogicGame(self.t_color, self.b_color)
 		new_game.board = copy.deepcopy(self.board)
-		return new_game
+		# return new_game
+		return copy.deepcopy(self)
 
 	def will_be_mate(self, from_pos, to_pos):
 		""" определяет, приведет ли ход игрока к его мату"""
