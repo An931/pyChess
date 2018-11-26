@@ -276,6 +276,23 @@ class LogicGame:
 			return True
 		return False
 
+	def get_incheck_king_pos(self, king_color):
+		king_pos = None # на случай если вызывается, когда короля нет на поле 
+		for pos in self.board:
+			if self.board[pos] and self.board[pos].color == king_color \
+			and (isinstance(self.board[pos], King) or isinstance(self.board[pos], Maharajah)):
+				king_pos = pos
+				break
+		enemy_color = 'white' if (king_color == 'black') else 'black'
+		moves = self.get_sorted_movements(enemy_color, avoid_mate=False)
+		if not king_pos or not moves:
+			return
+		if moves[0][1] == king_pos:
+			# print(moves[0])
+			# print('ISINCHEEK '+king_color)
+			return king_pos
+
+
 	def get_incheck_king_positions(self):
 		king_poses = []
 		for pos in self.board:

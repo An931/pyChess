@@ -131,6 +131,7 @@ class QtPiece(QLabel):
 		self.name = name
 		self.color = color
 		self.cell = parent
+		self.origin_pixmap = pixmap
 		self.show()
 		self.setMouseTracking(True)
 

@@ -18,7 +18,7 @@ class Computer:
 		self.color = color
 		print(self.color)
 
-	def get_moveMBFASTER(self):
+	def get_move_MBFASTER(self):
 		moves = self.game.get_sorted_movements(self.color, avoid_mate=False)
 		if not moves:
 			return

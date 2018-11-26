@@ -75,8 +75,8 @@ class QtGameWithComputer(QtChess):
 		pseudo_g = self.game.get_pseudo_game()
 		pseudo_g.make_move(from_pos, to_pos)
 		if pseudo_g.is_in_check(self.human.color):
-			# highlite king !!
 			return
+
 		if self.game.is_custeling(from_pos, to_pos):
 			self.game.make_move(from_pos, to_pos)
 			self.board.animate_custeling(from_pos, to_pos)
@@ -86,7 +86,6 @@ class QtGameWithComputer(QtChess):
 
 		# time.sleep(3)
 		self.acting_player = self.comp
-		self.game_app.update_incheck_highlight()
 		self.game_app.update_incheck_msg()
 		# self.make_comp_move()
 
@@ -109,7 +108,7 @@ class QtGameWithComputer(QtChess):
 		self.game.make_move(from_pos, to_pos)
 
 		self.acting_player = self.human
-		self.game_app.update_incheck_highlight()
+		self.game_app.update_incheck_msg()
 
 	def try_make_comp_move(self):
 		if self.acting_player == self.comp:
@@ -183,7 +182,7 @@ class QtGameHotSeat(QtChess):
 		# if self.game.over:
 		# 	self.message_over()
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
-		self.game_app.update_incheck_highlight()
+		self.game_app.update_incheck_msg()
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
@@ -264,13 +263,14 @@ class QtGame(QWidget):
 		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
 		self.in_check_msg.setText(msg1+'\n\n'+msg2)
 
+
 	def update_incheck_highlightsPIXMAP(self):
 		pos = self.chess.game.get_incheck_king_positions()
 		for p in pos:
 			piece = self.chess.board.get_cell(p).piece
 			piece.setPixmap(piece.incheck_pixmap)
 
-	def update_incheck_highlight(self):
+	def update_incheck_highlight000(self):
 		pos = self.chess.game.get_incheck_king_positions()
 		for p in pos:
 			piece = self.chess.board.get_cell(p).highlight(True, 'incheck')
