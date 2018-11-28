@@ -332,7 +332,7 @@ class MenuWidget(QWidget):
 				game = QtGameWithComputer(hum_color)
 		elif self.two_players_radio.isChecked(): # two players
 			if self.modes.currentText() == 'Radioactive knights':
-				game = QtGameHotSeat(adioactive=True)
+				game = QtGameHotSeat(radioactive=True)
 			elif self.modes.currentText() == 'Maharajah':
 				mah_pos = self.mah_pos.currentText()
 				mah_color = self.mah_color.text()

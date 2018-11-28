@@ -16,7 +16,7 @@ class LogicGame:
 			# !!!!! для создания тестовых случаев
 			# files: 
 			# self.board = BoardCreator.create_board_from_file('comp_custel.txt')
-			self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
+			# self.board = BoardCreator.create_board_from_file('check_stalemate.txt')
 
 		self.t_color = t_color
 		self.b_color = b_color
@@ -36,10 +36,10 @@ class LogicGame:
 		if self.over:
 			raise GameOverError
 
-		# if not self.is_correct_move(from_pos, to_pos, avoid_mate):
-		# 	print(from_pos, to_pos, 'is incorrect move')
-		# 	# self.print_board()
-		# 	raise MoveError
+		if not self.is_correct_move(from_pos, to_pos):
+			print(from_pos, to_pos, 'is incorrect move')
+			# self.print_board()
+			raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):
 			self.board[to_pos[0]+from_pos[1]] = ''
@@ -75,27 +75,26 @@ class LogicGame:
 			act_piece.already_moved = True
 
 		self.history.append((from_pos, to_pos))
-		# if act_piece.radioactive:
-		# 	self.radioactive_cells.append(from_pos)
+
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
 		if check_stalemate:
-			self.evaluate_if_stalemate()
+			next_player_color = 'white' if self.board[to_pos].color == 'black' else 'black'
+			self.evaluate_if_no_moves(next_player_color)
 
 	def is_correct_move(self, from_pos, to_pos):
-		# if to_pos in self.last_from_poses and to_pos in self.last_from_poses:
-		# check if would be mate
-		# if avoid_mate:
-		# 	p_game = self.get_pseudo_game()
-		# 	if p_game.is_correct_move(from_pos, to_pos, False):
-		# 		p_game.make_move(from_pos, to_pos, False)
-		# 		if not p_game.is_in_check(self.board[from_pos].color):
-		# 			return True
-		# 		return False
-
+		# проверка на радиоактивность
 		for tup in self.last_from_poses:
 			if tup[0] == to_pos and tup[1]:
 				return False
 		if self.is_custeling(from_pos, to_pos):
+			# проверка на радиоактивность
+			row = to_pos[1]
+			rook_next_place = 'f'+row if to_pos[0]=='h' else 'd'+row
+			king_next_place = 'g'+row if to_pos[0]=='h' else 'c'+row
+			for tup in self.last_from_poses:
+				if (tup[0] == rook_next_place and tup[1]) or\
+				 (tup[0] == king_next_place and tup[1]):
+					return False
 			return True
 		if self.is_enpassant(from_pos, to_pos):
 			return True
@@ -307,7 +306,18 @@ class LogicGame:
 				incheck_k_poses.append(k_pos)
 		return incheck_k_poses
 
-	def evaluate_if_stalemate(self):
+	def evaluate_if_no_moves(self, next_player_color):
+		moves = self.get_movements(next_player_color)
+		if not moves:
+			self.over = True
+			self.win_color = 'white' if next_player_color == 'black' else 'black'
+			if not self.is_in_check(next_player_color):
+				self.stalemate = True
+
+
+
+	def evaluate_if_stalemate000(self):
+		# не верно, если ходов нет у того, кто сейчас не ходит
 		moves_w = self.get_movements('white')
 		moves_b = self.get_movements('black')
 		if not moves_w or not moves_b:
