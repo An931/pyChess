@@ -33,8 +33,8 @@ class LogicGame:
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
 
 	def make_move(self, from_pos, to_pos, check_stalemate=True):
-		if self.over:
-			raise GameOverError
+		# if self.over:
+		# 	raise GameOverError
 
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')

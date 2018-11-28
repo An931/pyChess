@@ -171,6 +171,13 @@ class QtGameHotSeat(QtChess):
 		if not self.game.is_correct_move(from_pos, to_pos):
 			return
 
+		# check be in check
+		pseudo_g = self.game.get_pseudo_game()
+		pseudo_g.make_move(from_pos, to_pos)
+		if pseudo_g.is_in_check(self.game.board[from_pos].color):
+			# self.board.blink_piece(pseudo_g.get_incheck_king_pos(self.human.color))
+			return
+
 		if self.game.is_custeling(from_pos, to_pos):
 			self.game.make_move(from_pos, to_pos)
 			self.board.animate_custeling(from_pos, to_pos)
