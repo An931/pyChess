@@ -276,7 +276,7 @@ class QtGame(QWidget):
 		print('update_incheck_msg')
 		msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
 		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
-		self.in_check_msg.setText(msg1+'\n\n'+msg2)
+		# self.in_check_msg.setText(msg1+'\n\n'+msg2)
 
 
 	def update_incheck_highlightsPIXMAP(self):

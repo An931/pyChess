@@ -16,7 +16,7 @@ class Computer:
 		if color not in ['white', 'black']:
 			raise Exception
 		self.color = color
-		print(self.color)
+		# print(self.color)
 
 	def get_move_MBFASTER(self):
 		moves = self.game.get_sorted_movements(self.color, avoid_mate=False)

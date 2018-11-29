@@ -7,7 +7,7 @@ import copy
 
 
 class LogicGame:
-	def __init__(self, t_color, b_color, radioactive=False, maharajah = False):
+	def __init__(self, t_color='black', b_color='white', radioactive=False, maharajah = False):
 		# костыльненько - Maharajah либо False либо (цвет и (позиция))
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
@@ -31,6 +31,7 @@ class LogicGame:
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
 		self.last_from_poses = collections.deque(maxlen=5) #tuple (from_pos, is_radioactive(True/False))
+		self.log = []
 
 	def make_move(self, from_pos, to_pos, check_stalemate=True):
 		# if self.over:
