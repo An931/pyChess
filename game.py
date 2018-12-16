@@ -57,6 +57,11 @@ class LogicGame:
 			self.board[rook_future_place] = Rook(color)
 			self.board[to_pos] = ''
 			self.board[from_pos] = ''
+			# to log
+			if king_future_place[0] == 'g':
+				self.log.append('O-O')
+			else:
+				self.log.append('O-O-O')
 			return
 
 		if isinstance(self.board[to_pos], King) or isinstance(self.board[to_pos], Maharajah): 
@@ -76,6 +81,8 @@ class LogicGame:
 			act_piece.already_moved = True
 
 		self.history.append((from_pos, to_pos))
+		let = Letters_to_log.get_letter(self.board[to_pos])
+		self.log.append(let + from_pos + ' ' + let + to_pos)
 
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
 		if check_stalemate:
@@ -393,7 +400,6 @@ class LogicGame:
 				enemy.append(c)
 		return (empty, enemy)
 
-# ----------------
 
 	def get_pseudo_game(self):
 		new_game = LogicGame(self.t_color, self.b_color)
@@ -437,3 +443,18 @@ class GameOverError(BaseException):
 
 class MoveError(BaseException):
 	pass
+
+class Letters_to_log():
+	def get_letter(piece):
+		if isinstance(piece, King):
+			return 'K'
+		if isinstance(piece, Queen):
+			return 'Q'
+		if isinstance(piece, Knight):
+			return 'N'
+		if isinstance(piece, Bishop):
+			return 'B'
+		if isinstance(piece, Rook):
+			return 'R'
+		if isinstance(piece, Pawn):
+			return 'p'

@@ -239,7 +239,7 @@ class QtGame(QWidget):
 			raise Exception()
 
 		self.chess = chess
-		self.in_check_msg = QLabel('                                 ')
+		self.in_check_msg = QLabel('                                                   ')
 		save_ses_btn = QPushButton('save', self)
 		save_ses_btn.clicked.connect(self.save_btn_func)
 		load_ses_btn = QPushButton('load', self)
@@ -276,6 +276,15 @@ class QtGame(QWidget):
 		print('update_incheck_msg')
 		msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
 		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
+		# !!!!!!!!!!!!! PRINT LOG
+		log_str = ''
+		for i in range(len(self.chess.game.log)):
+			move = self.chess.game.log[i]
+			space = '\t' if i%2==0 else '\n'
+			log_str += str(i+1) + '. ' + str(move) + space
+		# for move in self.chess.game.log:
+		# 	log_str += str(move) + '\n'
+		self.in_check_msg.setText(log_str)
 		# self.in_check_msg.setText(msg1+'\n\n'+msg2)
 
 
