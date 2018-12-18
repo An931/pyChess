@@ -7,7 +7,7 @@ from PyQt5.QtCore import (QByteArray, QDataStream, QIODevice, QMimeData,
 		QParallelAnimationGroup, QSequentialAnimationGroup)
 from PyQt5.QtGui import QColor, QDrag, QPainter, QPixmap, QPainterPath, QPalette
 from PyQt5.QtWidgets import (QMainWindow, QApplication, QInputDialog, QCheckBox, QDialog,  QFrame, QHBoxLayout,
-	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QRadioButton, QToolButton, QComboBox, QWidget)
+	QVBoxLayout, QLabel, QLineEdit, QMessageBox, QPushButton, QRadioButton, QTextEdit, QToolButton, QComboBox, QWidget)
 
 from game import *
 from players import *
@@ -87,7 +87,7 @@ class QtGameWithComputer(QtChess):
 
 		# time.sleep(3)
 		self.acting_player = self.comp
-		self.game_app.update_incheck_msg()
+		self.game_app.update_log_msg()
 		# self.make_comp_move()
 
 	def make_comp_move(self):
@@ -109,7 +109,7 @@ class QtGameWithComputer(QtChess):
 		self.game.make_move(from_pos, to_pos)
 
 		self.acting_player = self.human
-		self.game_app.update_incheck_msg()
+		self.game_app.update_log_msg()
 
 	def try_make_comp_move(self):
 		if self.acting_player == self.comp:
@@ -191,7 +191,7 @@ class QtGameHotSeat(QtChess):
 		# if self.game.over:
 		# 	self.message_over()
 		self.acting_player = self.human_w if self.acting_player == self.human_b else self.human_b
-		self.game_app.update_incheck_msg()
+		self.game_app.update_log_msg()
 
 	def message_over(self):
 		pers_message = 'Player with {} pieces has won!'.format(self.game.win_color)
@@ -239,7 +239,9 @@ class QtGame(QWidget):
 			raise Exception()
 
 		self.chess = chess
-		self.in_check_msg = QLabel('                                                   ')
+		self.in_check_msg = QTextEdit('')
+		# self.in_check_msg = QTextEdit('                                                   ')
+		self.in_check_msg.setMaximumSize(200, 500)
 		save_ses_btn = QPushButton('save', self)
 		save_ses_btn.clicked.connect(self.save_btn_func)
 		load_ses_btn = QPushButton('load', self)
@@ -272,16 +274,18 @@ class QtGame(QWidget):
 		self.setWindowTitle('Chess')
 		self.show()
 
-	def update_incheck_msg(self):
-		print('update_incheck_msg')
-		msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
-		msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
+	def update_log_msg(self):
+		print('update_log_msg')
+		# msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
+		# msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
 		# !!!!!!!!!!!!! PRINT LOG
 		log_str = ''
 		for i in range(len(self.chess.game.log)):
+			# чтобы отображались только последние
 			move = self.chess.game.log[i]
 			space = '\t' if i%2==0 else '\n'
 			log_str += str(i+1) + '. ' + str(move) + space
+
 		# for move in self.chess.game.log:
 		# 	log_str += str(move) + '\n'
 		self.in_check_msg.setText(log_str)

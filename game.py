@@ -8,7 +8,6 @@ import copy
 
 class LogicGame:
 	def __init__(self, t_color='black', b_color='white', radioactive=False, maharajah = False):
-		# костыльненько - Maharajah либо False либо (цвет и (позиция))
 		if maharajah:
 			self.board = BoardCreator.get_maharajah_board(t_color, b_color, *maharajah)
 		else:
@@ -419,6 +418,7 @@ class LogicGame:
 		if game.is_in_check(self.board[from_pos].color):
 			return True
 		return False
+
 
 
 class Move:

@@ -43,7 +43,7 @@ class Computer:
 			return moves[0]
 		return move
 
-	def get_random_movement(self):
+	def get_random_movement000(self):
 		moves = self.game.get_all_movements(self.color)
 		r1 = random.randint(0, len(moves)-1)
 		from_pos = list(moves.keys())[r1]
@@ -79,3 +79,26 @@ class Computer:
 		if len(my_pieces) < 3 or my_pieces[1].weight<5:
 			return True
 		return False
+
+	# ---------------------
+
+	def evaluate_position(game):
+		pass
+
+	def get_best_move(moves):
+		# оценивает каждый ход на какую то глубину, выдает наилучший
+		pass
+
+
+class AI:
+
+	def evaluate_position(board):
+		evaluation = 0
+		for cell in board:
+			piece = board[cell]
+			if piece:
+				if piece.color == 'black':
+					evaluation += piece.weight
+				else:
+					evaluation -= piece.weight
+		return evaluation
