@@ -93,6 +93,7 @@ class Computer:
 class AI:
 
 	def evaluate_position(board):
+		# !!!!!! максимум - для хорошего хода черных, минмум для белых
 		evaluation = 0
 		for cell in board:
 			piece = board[cell]
