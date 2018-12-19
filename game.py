@@ -33,8 +33,8 @@ class LogicGame:
 		self.log = []
 
 	def make_move(self, from_pos, to_pos, check_stalemate=True):
-		# if self.over:
-		# 	raise GameOverError
+		if self.over:
+			raise GameOverError
 
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')
@@ -401,8 +401,8 @@ class LogicGame:
 
 
 	def get_pseudo_game(self):
-		new_game = LogicGame(self.t_color, self.b_color)
-		new_game.board = copy.deepcopy(self.board)
+		# new_game = LogicGame(self.t_color, self.b_color)
+		# new_game.board = copy.deepcopy(self.board)
 		# return new_game
 		return copy.deepcopy(self)
 
@@ -418,7 +418,6 @@ class LogicGame:
 		if game.is_in_check(self.board[from_pos].color):
 			return True
 		return False
-
 
 
 class Move:
