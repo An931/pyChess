@@ -135,8 +135,5 @@ class TestGameMethods(unittest.TestCase):
 			g.make_move('c7', 'b8')
 			self.assertTrue(isinstance(g.board['b8'], Queen))
 
-
-
-
 if __name__ == '__main__':
 		unittest.main()

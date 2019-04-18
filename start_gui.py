@@ -39,18 +39,10 @@ class QtChess(QWidget):
 	def save_session(self, ses_name):
 		Saver.save_session(ses_name, self.game)
 
-	def load_session00(self, ses_name='init'):
-		self.game.load_session(ses_name)
-		self.board.update()
-
-	def save_session000(self, ses_name):
-		self.game.save_session(ses_name)
-
 
 class QtGameWithComputer(QtChess):
 	def __init__(self, hum_color='white', radioactive=False, maharajah = False):
 		super(QtGameWithComputer, self).__init__()
-
 		comp_color = 'black' if hum_color == 'white' else 'white'
 		self.game = LogicGame(comp_color, hum_color, radioactive, maharajah)
 		self.board = QtBoard(self)
@@ -85,7 +77,6 @@ class QtGameWithComputer(QtChess):
 			self.game.make_move(from_pos, to_pos)
 			self.board.update()
 
-		# time.sleep(3)
 		self.acting_player = self.comp
 		self.game_app.update_log_msg()
 		# self.make_comp_move()
@@ -205,6 +196,7 @@ class QtGameHotSeat(QtChess):
 	def message_draw_over(self):
 		pers_message = "Congratulations, it's a draw"
 		super().message_over(pers_message)
+
 	def message_offer_draw(self, place):
 		if place == 'top':
 			color = self.game.t_color
@@ -229,6 +221,7 @@ class QtGameHotSeat(QtChess):
 		self.acting_player = self.human_w if last_act_color == 'black' else self.human_b
 		# self.acting_player = self.human if self. == 'white' else self.comp
 		self.board.update()
+		self.update_log_msg()
 
 
 class QtGame(QWidget):
@@ -278,7 +271,11 @@ class QtGame(QWidget):
 		print('update_log_msg')
 		# msg1 = 'white King is in check' if self.chess.game.is_in_check('white') else ''
 		# msg2 = 'black King is in check' if self.chess.game.is_in_check('black') else ''
-		# !!!!!!!!!!!!! PRINT LOG
+		if not hasattr(self.chess.game, 'log'):
+			# если загружаем сессию, созданную до того, как начал записываться лог
+			print(	'nothasattr')
+			self.in_check_msg.setText('dfghdfgh')
+			return
 		log_str = ''
 		for i in range(len(self.chess.game.log)):
 			# чтобы отображались только последние

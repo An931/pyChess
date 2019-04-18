@@ -1,4 +1,3 @@
-# from pickle import dump, load
 import pickle
 
 class Saver:

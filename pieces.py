@@ -12,7 +12,7 @@ class Piece(object):
 				self.weight = weight
 				self.already_moved = False
 				# if radioactive and not isinstance(self, Knight):
-				# 	raise Exception('cold work incorrect')
+				# 	raise Exception('could work incorrect')
 				self.radioactive = radioactive
 
 		def can_move(self, start, to):

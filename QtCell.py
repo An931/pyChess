@@ -15,7 +15,6 @@ from players import *
 class QtCell(QFrame):
 	def __init__(self, id, qtgame, parent):
 		super(QtCell, self).__init__(parent)
-		# self.game = game
 		self.piece = None
 		self.id = id
 		self.game = qtgame
@@ -62,9 +61,6 @@ class QtCell(QFrame):
 		if event.source() == self:
 			event.accept()
 		else:
-			# наведение на дугие клетки
-			# здесь можно высчитывать возможность хода
-			# либо для каждой кл заново, либо сразу сост спсок возм-ых и искать кл в этом списке
 			event.acceptProposedAction()
 
 	def dropEvent(self, event):
@@ -73,7 +69,6 @@ class QtCell(QFrame):
 		self.game.try_make_move(from_pos, to_pos)
 
 	def mousePressEvent(self, event):
-		# нажатие именно на фигуру
 		child = self.childAt(event.pos())
 		if not child:
 			return
@@ -111,7 +106,6 @@ class QtCell(QFrame):
 
 	def mouseMoveEvent(self, event):
 		if str(type(self.game)) == "<class '__main__.QtGameWithComputer'>":
-		# if isinstance(self.game, QtGameWithComputer):
 			self.game.try_make_comp_move()
 
 

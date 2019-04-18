@@ -17,7 +17,6 @@ class QtBoard(QWidget):
 	def __init__(self, game, parent=None):
 		super(QtBoard, self).__init__(parent)
 		self.game = game.game #OPASNO
-		# self.game = game #OPASNO
 		verticalLayout = QVBoxLayout()
 		for y in '87654321':
 			horizontalLayout = QHBoxLayout()
@@ -61,35 +60,7 @@ class QtBoard(QWidget):
 			self.parent().message_over()
 			return
 		self.update_radioactive()
-		# self.update_incheck_highlits()
 		self.highlight_if_incheck()
-
-	def make_human_move000(self, from_pos, to_pos):
-		self.game.make_move(from_pos, to_pos)
-
-		from_cell = self.get_cell(from_pos)
-		to_cell = self.get_cell(to_pos)
-
-		if self.is_custeling(from_pos, to_pos):
-			self.animate_custeling(from_pos, to_pos)
-			from_cell.del_piece()
-			to_cell.del_piece()
-
-		else:
-			to_cell.set_piece(from_cell.piece.name, from_cell.piece.color)
-			from_cell.del_piece()
-			self.update()
-
-		# self.update()
-		self.make_computer_move()
-
-	def make_computer_move00(self):
-		from_pos, to_pos = self.comp.get_move()
-		self.game.make_move(from_pos, to_pos)
-		self.animate_move(from_pos, to_pos)
-
-		from_cell = self.get_cell(from_pos)
-		from_cell.del_piece()
 
 	def animate_move(self, from_pos, to_pos):
 		from_pos_coords = self.get_coords(from_pos)
@@ -111,10 +82,6 @@ class QtBoard(QWidget):
 		self.anim.setEndValue(to_pos_coords)
 		self.anim.start()
 		self.anim.finished.connect(self.update)
-
-	def is_custeling000(self, from_pos, to_pos):
-		# проверяет только позиции
-		return from_pos in ['e1', 'e8'] and to_pos in ['a1', 'h1', 'a8', 'h8']
 
 	def animate_custeling(self, from_pos, to_pos):
 		n = from_pos[1] # 1 or 8
@@ -155,14 +122,12 @@ class QtBoard(QWidget):
 		return self.get_cell(id).piece
 
 	def get_coords(self, cell_id):
-		# возвращает координаты центра конкретной клетки относительно доски в пикселях
+		# координаты центра конкретной клетки относительно доски в пикселях
 		return self.get_cell(cell_id).pos()
 
 	def update_radioactive(self):
-		# pass
-		# пробегается по клеткам (лог или гуи) и подсвечивает либо делает как было
+		# пробегается по клеткам (логическим или гуи) и подсвечивает либо убирает свет 
 		for cell in self.game.board:
-			# if cell in self.game.radioactive_cells:
 			if self.game.board[cell]:
 				continue
 			for tup in self.game.last_from_poses:
@@ -172,23 +137,6 @@ class QtBoard(QWidget):
 				else:
 					self.get_cell(cell).highlight(False)
 
-	def update_incheck_highlghts00(self):
-		white_in_check = self.game.is_in_check('white')
-		black_in_check = self.game.is_in_check('black')
-		for row in self.layout().children():
-			for cell in [row.itemAt(i).widget() for i in range(8)]:
-				if cell.piece and cell.piece.name == 'King':
-					if cell.piece.color == 'white':
-						if white_in_check: 
-							cell.highlight_incheck(True)
-						else:
-							cell.highlight_incheck(False)
-					else:
-						if black_in_check: 
-							cell.highlight_incheck(True)
-						else:
-							cell.highlight_incheck(False)
-
 	def highlight_piece(self, from_pos):
 		piece = self.get_cell(from_pos).piece
 		if not piece:
@@ -196,19 +144,6 @@ class QtBoard(QWidget):
 		piece.setPixmap(QPixmap('pieces_img/{}_King_incheck.png'.format(piece.color[0])).scaled(50, 50))
 		# piece.setPixmap(QPixmap('pieces_img/r_King.png').scaled(50, 50))
 		# piece.setPixmap(piece.origin_pixmap)
-
-	def blink_piece00(self, from_pos):
-		# cell = self.get_cell(from_pos)
-		# blinked_piece = QtPiece('King', 'red', cell)
-		# blinked_piece.hide()
-		piece = self.get_cell(from_pos).piece
-		movie = QMovie('pieces_img/{}_King_incheck.gif'.format(piece.color[0]))
-		# movie = QMovie("pieces_img/with_menu.gif")
-		movie.setScaledSize(piece.size())
-
-		piece.setMovie(movie)
-		movie.start()
-		# movie.stop()
 
 	def highlight_if_incheck(self):
 		incheck_king_poses = self.game.get_incheck_king_positions()

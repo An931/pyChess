@@ -25,7 +25,6 @@ class LogicGame:
 		self.is_in_check_color = None
 		self.stalemate = False
 
-		# self.history = [] # (from_pos. to_pos, piece=(color, type))
 		self.history = [] # (from_pos, to_pos)
 		# self.radioactive_cells = []
 		# self.radioactive_cells = collections.deque(maxlen=3)
@@ -38,7 +37,6 @@ class LogicGame:
 
 		if not self.is_correct_move(from_pos, to_pos):
 			print(from_pos, to_pos, 'is incorrect move')
-			# self.print_board()
 			raise MoveError
 
 		if self.is_enpassant(from_pos, to_pos):
@@ -66,7 +64,6 @@ class LogicGame:
 		if isinstance(self.board[to_pos], King) or isinstance(self.board[to_pos], Maharajah): 
 			self.over = True
 			self.win_color =  self.board[from_pos].color 
-			# self.winner = 'Human' if self.board[to_pos].color == 'black' else 'Computer'
 
 		self.board[to_pos] = self.board[from_pos]
 		self.board[from_pos] = ''
@@ -81,7 +78,8 @@ class LogicGame:
 
 		self.history.append((from_pos, to_pos))
 		let = Letters_to_log.get_letter(self.board[to_pos])
-		self.log.append(let + from_pos + ' ' + let + to_pos)
+		if hasattr(self, 'log'):
+			self.log.append(let + from_pos + ' ' + let + to_pos)
 
 		self.last_from_poses.append((from_pos, act_piece.radioactive))
 		if check_stalemate:
@@ -114,7 +112,6 @@ class LogicGame:
 		can = piece.can_move(from_pos, to_pos) if self.board[to_pos] == '' else piece.can_capture(from_pos, to_pos)
 		if not can:
 			return False
-
 		return not self.is_barrier_on_pathway(from_pos, to_pos)
 
 	def need_to_promote_pawn(self, to_pos):
@@ -201,23 +198,11 @@ class LogicGame:
 		# print('custelling')
 		return True
 
-	def make_custeling0000(self, from_pos, to_pos):
-		if to_pos == 'h1':
-			king_place = 'g1'
-			rook_place = 'f1'
-		else:
-			king_place = 'c1'
-			rook_place = 'd1'
-
-		self.board[king_place] = self.board[from_pos]
-		self.board[rook_place] = self.board[to_pos]
-		self.board[from_pos] = ''
-		self.board[to_pos] = ''
-
 	def is_barrier_on_pathway(self, from_pos, to_pos):
 		cells = self.get_pathway_cells(from_pos, to_pos)
 		barriers = [self.board[c] for c in cells if not self.board[c] == '']
 		return len(barriers) > 0
+
 	def get_pathway_cells(self, from_pos, to_pos):
 		""" Возвращает список id клеток, которые находятся на траектории предполагаемого движения
 				Если траектория - прямая или диагональ, то возвращает список клеток между from и to
@@ -298,7 +283,6 @@ class LogicGame:
 			# print('ISINCHEEK '+king_color)
 			return king_pos
 
-
 	def get_incheck_king_positions(self):
 		king_poses = []
 		for pos in self.board:
@@ -321,26 +305,6 @@ class LogicGame:
 			if not self.is_in_check(next_player_color):
 				self.stalemate = True
 
-
-
-	def evaluate_if_stalemate000(self):
-		# не верно, если ходов нет у того, кто сейчас не ходит
-		moves_w = self.get_movements('white')
-		moves_b = self.get_movements('black')
-		if not moves_w or not moves_b:
-			self.over = True
-			self.stalemate = True
-			if not moves_w and not moves_b:
-				print('both stalemate')
-				self.draw = True
-			elif not moves_w:
-				print('w stalemate')
-				self.win_color = 'black'
-			elif not moves_b:
-				print('b stalemate')
-				self.win_color = 'white'
-
-	# --------------------------
 	def get_movements(self, color, avoid_mate=True):
 		""" возвращает список ходов (tuple) игрока с цветом color"""
 		candidats_to_move = self.get_all_movements(color)  # словарь ходов {from : all where}
@@ -387,19 +351,6 @@ class LogicGame:
 		moves = [to_pos for to_pos in self.board if self.is_correct_move(cell_id, to_pos)]
 		return moves
 
-	def get_empty_or_enemy_cells00(self, color):
-		""" возвр тапл списков: все пустые и все клетки противника"""
-		empty = []
-		enemy = []
-		for c in self.board.keys():
-			piece = self.board[c]
-			if not piece:
-				empty.append(c)
-			elif piece.color != color:
-				enemy.append(c)
-		return (empty, enemy)
-
-
 	def get_pseudo_game(self):
 		# new_game = LogicGame(self.t_color, self.b_color)
 		# new_game.board = copy.deepcopy(self.board)
@@ -408,7 +359,6 @@ class LogicGame:
 
 	def will_be_mate(self, from_pos, to_pos):
 		""" определяет, приведет ли ход игрока к его мату"""
-		# return False #!!!!!!!!!!!!!!!!!!!!!!!!
 		if not self.is_correct_move(from_pos, to_pos):
 			return False
 		if isinstance(self.board[to_pos], King) or isinstance(self.board[to_pos], Maharajah):
